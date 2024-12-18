@@ -50,7 +50,15 @@ public class AuthService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
-    public ResponseEntity<?> profile() {
+    public ResponseEntity<?> logout() {
+        return null;
+    }
+    
+    public ResponseEntity<?> getProfile() {
+        return null;
+    }
+    
+    public ResponseEntity<?> updateProfile(User user) {
         return null;
     }
 }

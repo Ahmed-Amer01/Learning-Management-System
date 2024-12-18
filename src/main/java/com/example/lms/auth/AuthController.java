@@ -24,9 +24,21 @@ public class AuthController {
         return authService.login(user);
     }
     
+    @DeleteMapping("/logout")
+    @RolesAllowed({"STUDENT", "ADMIN", "INSTRUCTOR"})
+    public ResponseEntity<?> logout() {
+        return authService.logout();
+    }
+    
     @GetMapping("/profile")
     @RolesAllowed({"STUDENT", "ADMIN", "INSTRUCTOR"})
-    public ResponseEntity<?> profile() {
-        return authService.profile();
+    public ResponseEntity<?> getProfile() {
+        return authService.getProfile();
+    }
+    
+    @PutMapping("/profile")
+    @RolesAllowed({"STUDENT", "ADMIN", "INSTRUCTOR"})
+    public ResponseEntity<?> updateProfile(@RequestBody User user) {
+        return authService.updateProfile(user);
     }
 }
