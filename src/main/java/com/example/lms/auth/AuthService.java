@@ -2,7 +2,9 @@ package com.example.lms.auth;
 
 import com.example.lms.user.User;
 import com.example.lms.user.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -54,8 +56,18 @@ public class AuthService {
         return null;
     }
     
-    public ResponseEntity<?> getProfile() {
-        return null;
+    public ResponseEntity<?> getProfile(HttpServletRequest request) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        try{
+            String id = jwtService.extractUsername(authHeader.substring(7));
+            User user = userRepository.findById(id).orElse(null);
+            if (user == null) {
+                return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>("Invalid or expired token", HttpStatus.UNAUTHORIZED);
+        }
     }
     
     public ResponseEntity<?> updateProfile(User user) {

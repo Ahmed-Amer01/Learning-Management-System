@@ -2,6 +2,7 @@ package com.example.lms.auth;
 
 import com.example.lms.user.User;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +33,8 @@ public class AuthController {
     
     @GetMapping("/profile")
     @RolesAllowed({"STUDENT", "ADMIN", "INSTRUCTOR"})
-    public ResponseEntity<?> getProfile() {
-        return authService.getProfile();
+    public ResponseEntity<?> getProfile(HttpServletRequest request) {
+        return authService.getProfile(request);
     }
     
     @PutMapping("/profile")

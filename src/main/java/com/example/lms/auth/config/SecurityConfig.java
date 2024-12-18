@@ -28,12 +28,13 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .securityMatcher("/**")
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/users/**").permitAll()
+                        .requestMatchers("/auth/register").permitAll()
+                        .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/api/students/**").hasAnyRole(UserRole.STUDENT.name(), UserRole.ADMIN.name(),
                                 UserRole.INSTRUCTOR.name())
                         .requestMatchers("/api/instructors/**").hasAnyRole(UserRole.INSTRUCTOR.name(), UserRole.ADMIN.name())
                         .requestMatchers("/api/admins/**").hasRole(UserRole.ADMIN.name())
-                        .anyRequest().authenticated()
+//                        .anyRequest().authenticated()
                 ).sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
