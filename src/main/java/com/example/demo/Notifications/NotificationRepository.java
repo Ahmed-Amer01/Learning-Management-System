@@ -41,13 +41,13 @@ public class NotificationRepository {
         studentID.add("1");
         String message = "assignment one in OS has been graded";
         LocalDateTime date = LocalDateTime.now();
-        notifications.add(new Notification(null,
+        notifications.add(new Notification(
                 NotificationType.ASSIGNMENT_GRADED,
                 UserType.STUDENT,
                 studentID,
                 message,
                 date,
                 false
-                ));
+        ));
     }
 }

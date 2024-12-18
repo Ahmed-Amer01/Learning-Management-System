@@ -16,12 +16,12 @@ public class NotificationController {
     }
 
     @GetMapping("")
-    public List<Notification> getNotifications(@RequestBody NotificationRequest request, @PathVariable String studentID) {
-        return notificationService.getNotifications(request.getUserType(), studentID);
+    public List<Notification> getNotifications(@RequestBody NotificationRequest request) {
+        return notificationService.getNotifications(request.getUserType(), request.getUserID());
     }
 
     @PatchMapping("/{notificationID}")
-    public void patchNotification (@PathVariable Long notificationID, @PathVariable String studentID) {
+    public void patchNotification (@PathVariable Long notificationID) {
         notificationService.markNotificationAsRead(notificationID);
     }
 }
