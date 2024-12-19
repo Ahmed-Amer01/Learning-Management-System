@@ -1,7 +1,6 @@
 package com.example.demo.Notifications;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 class notificationSenderImpl implements NotificationSender {
@@ -19,7 +18,7 @@ class notificationSenderImpl implements NotificationSender {
     ) {
         String message = "A new student with ID: " + enrolledStudentID + " has enrolled in your course " + courseName + "\n";
 
-        notificationService.addNotification(NotificationType.NEW_ENROLLMENT, UserType.INSTRUCTOR, receiverID, message, createdAt);
+        notificationService.addNotification(NotificationType.NEW_ENROLLMENT, UserRole.INSTRUCTOR, receiverID, message, createdAt);
     }
 
     public void sendEnrollmentSuccessNotification(String receiverID,
@@ -28,7 +27,7 @@ class notificationSenderImpl implements NotificationSender {
     ) {
         String message = "You have successfully enrolled in " + courseName + "\n";
 
-        notificationService.addNotification(NotificationType.ENROLLMENT_SUCCESS, UserType.STUDENT, receiverID, message, createdAt);
+        notificationService.addNotification(NotificationType.ENROLLMENT_SUCCESS, UserRole.STUDENT, receiverID, message, createdAt);
     }
 
     public void sendAssignmentGradedNotification(String receiverID,
@@ -38,7 +37,7 @@ class notificationSenderImpl implements NotificationSender {
     ) {
         String message = "The grade of assignment " + assignmentName + " in " + courseName + " course is out now\n";
 
-        notificationService.addNotification(NotificationType.ASSIGNMENT_GRADED, UserType.STUDENT, receiverID, message, createdAt);
+        notificationService.addNotification(NotificationType.ASSIGNMENT_GRADED, UserRole.STUDENT, receiverID, message, createdAt);
     }
 
     public void sendQuizGradedNotification(String receiverID,
@@ -48,7 +47,7 @@ class notificationSenderImpl implements NotificationSender {
     ) {
         String message = "The grade of quiz " + quizName + " in " + courseName + " course is out now\n";
 
-        notificationService.addNotification(NotificationType.QUIZ_GRADED, UserType.STUDENT, receiverID, message, createdAt);
+        notificationService.addNotification(NotificationType.QUIZ_GRADED, UserRole.STUDENT, receiverID, message, createdAt);
     }
 
     public void sendCourseUpdateNotification(List <String> receiversIDs,
@@ -58,7 +57,7 @@ class notificationSenderImpl implements NotificationSender {
         String message = "There's a new item in " + courseName + " feed\n";
         for (String studentID : receiversIDs)
         {
-            notificationService.addNotification(NotificationType.COURSE_UPDATE, UserType.STUDENT, studentID, message, createdAt);
+            notificationService.addNotification(NotificationType.COURSE_UPDATE, UserRole.STUDENT, studentID, message, createdAt);
         }
     }
 

@@ -1,20 +1,20 @@
-package com.example.demo.DTO;
+package com.example.demo.Notifications.DTO;
 
-import com.example.demo.Notifications.UserType;
+import com.example.demo.Notifications.UserRole;
 
 public class NotificationRequest {
-    private UserType userType;
+    private UserRole userRole;
     private String userID;
     private boolean unReadOnly;
 
-    NotificationRequest(UserType userType, String userID, boolean unReadOnly) {
-        this.userType = userType;
+    NotificationRequest(UserRole userRole, String userID, boolean unReadOnly) {
+        this.userRole = userRole;
         this.userID = userID;
         this.unReadOnly = unReadOnly;
     }
 
-    public UserType getUserType() {
-        return userType;
+    public UserRole getUserType() {
+        return userRole;
     }
 
     public String getUserID() {

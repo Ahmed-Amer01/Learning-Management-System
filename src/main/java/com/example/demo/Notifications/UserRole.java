@@ -1,6 +1,7 @@
 package com.example.demo.Notifications;
 
-public enum UserType {
+public enum UserRole {
+    STUDENT,
     INSTRUCTOR,
-    STUDENT
+    ADMIN
 }

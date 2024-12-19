@@ -1,6 +1,6 @@
 package com.example.demo.Notifications;
 
-import com.example.demo.DTO.NotificationRequest;
+import com.example.demo.Notifications.DTO.NotificationRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

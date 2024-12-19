@@ -17,10 +17,10 @@ public class NotificationRepository {
         notifications.add(notification);
     }
 
-    List<Notification> retreiveNotificationsForUser(UserType userType, String userID, boolean isUnreadOnly) {
+    List<Notification> retreiveNotificationsForUser(UserRole userRole, String userID, boolean isUnreadOnly) {
         return notifications.stream()
                 .filter(notification ->
-                        notification.receiverType() == userType &&
+                        notification.receiverType() == userRole &&
                         notification.receiverID().equals(userID) &&
                         (isUnreadOnly ? !notification.isRead() : true)
                 )
@@ -50,7 +50,7 @@ public class NotificationRepository {
 
         notifications.add(new Notification(
                 NotificationType.ASSIGNMENT_GRADED,
-                UserType.STUDENT,
+                UserRole.STUDENT,
                 userID1,
                 message1,
                 date1,
@@ -66,7 +66,7 @@ public class NotificationRepository {
 
         notifications.add(new Notification(
                 NotificationType.COURSE_UPDATE,
-                UserType.STUDENT,
+                UserRole.STUDENT,
                 userID2,
                 message2,
                 date2,
@@ -82,7 +82,7 @@ public class NotificationRepository {
 
         notifications.add(new Notification(
                 NotificationType.COURSE_UPDATE,
-                UserType.STUDENT,
+                UserRole.STUDENT,
                 userID3,
                 message3,
                 date3,
@@ -97,7 +97,7 @@ public class NotificationRepository {
 
         notifications.add(new Notification(
                 NotificationType.ENROLLMENT_SUCCESS,
-                UserType.STUDENT,
+                UserRole.STUDENT,
                 userID4,
                 message4,
                 date4,

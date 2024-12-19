@@ -23,7 +23,7 @@ public class NotificationService {
     }
 
     void addNotification(NotificationType notificationType,
-                         UserType receiverType,
+                         UserRole receiverType,
                         String receiverID,
                          String message,
                          LocalDateTime createdAt
@@ -33,7 +33,7 @@ public class NotificationService {
         notificationRepository.create(notification);
     }
 
-    List <Notification> getNotifications(UserType receiverType, String receiverID, boolean isUnreadOnly) {
+    List <Notification> getNotifications(UserRole receiverType, String receiverID, boolean isUnreadOnly) {
         //didn's use the return of notificationRepository.retreiveNotificationsForUser directly, because it return an immutable list, which throws an exception when sorted. To make it mutable, we first need to explicitly put it in an ArrayList
         List<Notification> userNotifications = new ArrayList<>(notificationRepository.retreiveNotificationsForUser(receiverType, receiverID, isUnreadOnly));
         if (userNotifications.size() > 1)

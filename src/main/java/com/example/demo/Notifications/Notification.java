@@ -4,7 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,7 +14,7 @@ public record Notification (@Id
                             Long notificationID,
 
                             NotificationType notificationType,
-                            UserType receiverType,
+                            UserRole receiverType,
                             String receiverID,
                             String message,
                             LocalDateTime createdAt,
@@ -26,7 +25,7 @@ public record Notification (@Id
 
     public Notification(
             NotificationType notificationType,
-            UserType receiverType,
+            UserRole receiverType,
             String receiverID,
             String message,
             LocalDateTime createdAt,
