@@ -1,10 +1,11 @@
 package com.example.lms.auth;
 
+import com.example.lms.auth.dto.LoginDto;
+import com.example.lms.auth.dto.RegisterDto;
+import com.example.lms.auth.dto.UpdateProfileDto;
 import com.example.lms.user.User;
 import com.example.lms.user.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,8 +21,8 @@ public class AuthService {
     private final JwtService jwtService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     
-    public ResponseEntity<?> register(User user) {
-        if(userRepository.existsByEmail(user.getEmail())) {
+    public ResponseEntity<?> register(RegisterDto user) {
+        if (userRepository.existsByEmail(user.getEmail())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         User newUser = new User();
@@ -29,20 +30,20 @@ public class AuthService {
         newUser.setName(user.getName());
         newUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         newUser.setRole(user.getRole());
-        user = userRepository.save(newUser);
-        String token = jwtService.generateToken(user);
+        User savedUser = userRepository.save(newUser);
+        String token = jwtService.generateToken(savedUser);
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
         response.put("user", user);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
     
-    public ResponseEntity<?> login(User user) {
+    public ResponseEntity<?> login(LoginDto user) {
         User foundUser = userRepository.findByEmail(user.getEmail()).orElse(null);
-        if(foundUser == null) {
+        if (foundUser == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        if(!bCryptPasswordEncoder.matches(user.getPassword(), foundUser.getPassword())) {
+        if (!bCryptPasswordEncoder.matches(user.getPassword(), foundUser.getPassword())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         String token = jwtService.generateToken(foundUser);
@@ -56,21 +57,22 @@ public class AuthService {
         return null;
     }
     
-    public ResponseEntity<?> getProfile(HttpServletRequest request) {
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        try{
-            String id = jwtService.extractUsername(authHeader.substring(7));
-            User user = userRepository.findById(id).orElse(null);
-            if (user == null) {
-                return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        }catch (Exception e){
-            return new ResponseEntity<>("Invalid or expired token", HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<?> getProfile(String id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
     
-    public ResponseEntity<?> updateProfile(User user) {
-        return null;
+    public ResponseEntity<?> updateProfile(String id, UpdateProfileDto user) {
+        User foundUser = userRepository.findById(id).orElse(null);
+        if (foundUser == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        foundUser.setName(user.getName());
+        foundUser.setEmail(user.getEmail());
+        foundUser = userRepository.save(foundUser);
+        return new ResponseEntity<>(foundUser, HttpStatus.OK);
     }
 }
