@@ -18,9 +18,8 @@ class notificationSenderImpl implements NotificationSender {
                                        LocalDateTime createdAt
     ) {
         String message = "A new student with ID: " + enrolledStudentID + " has enrolled in your course " + courseName + "\n";
-        List <String> receiversIDs = new ArrayList<String>();
-        receiversIDs.add(receiverID);
-        notificationService.addNotification(NotificationType.NEW_ENROLLMENT, UserType.INSTRUCTOR, receiversIDs, message, createdAt);
+
+        notificationService.addNotification(NotificationType.NEW_ENROLLMENT, UserType.INSTRUCTOR, receiverID, message, createdAt);
     }
 
     public void sendEnrollmentSuccessNotification(String receiverID,
@@ -28,9 +27,8 @@ class notificationSenderImpl implements NotificationSender {
                                            LocalDateTime createdAt
     ) {
         String message = "You have successfully enrolled in " + courseName + "\n";
-        List <String> receiversIDs = new ArrayList<String>();
-        receiversIDs.add(receiverID);
-        notificationService.addNotification(NotificationType.ENROLLMENT_SUCCESS, UserType.STUDENT, receiversIDs, message, createdAt);
+
+        notificationService.addNotification(NotificationType.ENROLLMENT_SUCCESS, UserType.STUDENT, receiverID, message, createdAt);
     }
 
     public void sendAssignmentGradedNotification(String receiverID,
@@ -39,9 +37,8 @@ class notificationSenderImpl implements NotificationSender {
                                           LocalDateTime createdAt
     ) {
         String message = "The grade of assignment " + assignmentName + " in " + courseName + " course is out now\n";
-        List <String> receiversIDs = new ArrayList<String>();
-        receiversIDs.add(receiverID);
-        notificationService.addNotification(NotificationType.ENROLLMENT_SUCCESS, UserType.STUDENT, receiversIDs, message, createdAt);
+
+        notificationService.addNotification(NotificationType.ASSIGNMENT_GRADED, UserType.STUDENT, receiverID, message, createdAt);
     }
 
     public void sendQuizGradedNotification(String receiverID,
@@ -50,9 +47,8 @@ class notificationSenderImpl implements NotificationSender {
                                     LocalDateTime createdAt
     ) {
         String message = "The grade of quiz " + quizName + " in " + courseName + " course is out now\n";
-        List <String> receiversIDs = new ArrayList<String>();
-        receiversIDs.add(receiverID);
-        notificationService.addNotification(NotificationType.ENROLLMENT_SUCCESS, UserType.STUDENT, receiversIDs, message, createdAt);
+
+        notificationService.addNotification(NotificationType.QUIZ_GRADED, UserType.STUDENT, receiverID, message, createdAt);
     }
 
     public void sendCourseUpdateNotification(List <String> receiversIDs,
@@ -60,7 +56,10 @@ class notificationSenderImpl implements NotificationSender {
                                              LocalDateTime createdAt
     ) {
         String message = "There's a new item in " + courseName + " feed\n";
-        notificationService.addNotification(NotificationType.ENROLLMENT_SUCCESS, UserType.STUDENT, receiversIDs, message, createdAt);
+        for (String studentID : receiversIDs)
+        {
+            notificationService.addNotification(NotificationType.COURSE_UPDATE, UserType.STUDENT, studentID, message, createdAt);
+        }
     }
 
 }

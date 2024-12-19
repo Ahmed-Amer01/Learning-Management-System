@@ -5,10 +5,12 @@ import com.example.demo.Notifications.UserType;
 public class NotificationRequest {
     private UserType userType;
     private String userID;
+    private boolean unReadOnly;
 
-    public NotificationRequest(UserType userType, String userID) {
+    NotificationRequest(UserType userType, String userID, boolean unReadOnly) {
         this.userType = userType;
         this.userID = userID;
+        this.unReadOnly = unReadOnly;
     }
 
     public UserType getUserType() {
@@ -17,5 +19,9 @@ public class NotificationRequest {
 
     public String getUserID() {
         return userID;
+    }
+
+    public boolean isUnReadOnly() {
+        return unReadOnly;
     }
 }

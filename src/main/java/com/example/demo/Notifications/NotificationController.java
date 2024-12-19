@@ -17,7 +17,7 @@ public class NotificationController {
 
     @GetMapping("")
     public List<Notification> getNotifications(@RequestBody NotificationRequest request) {
-        return notificationService.getNotifications(request.getUserType(), request.getUserID());
+        return notificationService.getNotifications(request.getUserType(), request.getUserID(), request.isUnReadOnly());
     }
 
     @PatchMapping("/{notificationID}")

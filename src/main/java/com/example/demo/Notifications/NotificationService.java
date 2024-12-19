@@ -1,10 +1,11 @@
 package com.example.demo.Notifications;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -16,28 +17,35 @@ public class NotificationService {
         this.notificationRepository = notificationRepository;
     }
 
+    private String formatDate(LocalDateTime date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE d/M/yyyy hh:mm a");
+        return date.format(formatter);
+    }
+
     void addNotification(NotificationType notificationType,
                          UserType receiverType,
-                         List<String> receiversIDs,
+                        String receiverID,
                          String message,
                          LocalDateTime createdAt
     ) {
-        Notification notification = new Notification(null, notificationType, receiverType, receiversIDs, message, createdAt, false);
+        String date_formatted = formatDate(createdAt);
+        Notification notification = new Notification(null, notificationType, receiverType, receiverID, message, createdAt, date_formatted, false);
         notificationRepository.create(notification);
     }
 
-    List <Notification> getNotifications(UserType receiverType, String receiverID) {
-        List<Notification> userNotifications = notificationRepository.retreiveByUser(receiverType, receiverID);
+    List <Notification> getNotifications(UserType receiverType, String receiverID, boolean isUnreadOnly) {
+        //didn's use the return of notificationRepository.retreiveNotificationsForUser directly, because it return an immutable list, which throws an exception when sorted. To make it mutable, we first need to explicitly put it in an ArrayList
+        List<Notification> userNotifications = new ArrayList<>(notificationRepository.retreiveNotificationsForUser(receiverType, receiverID, isUnreadOnly));
         if (userNotifications.size() > 1)
         {
-            userNotifications.sort((a, b) -> b.createdAt().compareTo(a.createdAt()));
+            userNotifications.sort(Comparator.comparing(Notification::getCreatedAt).reversed());
         }
         return userNotifications;
     }
 
     void markNotificationAsRead(Long notificationID) {
-        Notification target = notificationRepository.retrieveByID(notificationID);
-        Notification newN = new Notification(target.notificationType(), target.receiverType(), target.receiversIDs(), target.message(), target.createdAt(), true);
+        Notification target = notificationRepository.retrieveNotificationByID(notificationID);
+        Notification newN = new Notification(target.notificationID(), target.notificationType(), target.receiverType(), target.receiverID(), target.message(), target.createdAt(), target.createdAt_formatted(), true);
         notificationRepository.delete(notificationID);
         notificationRepository.create(newN);
     }

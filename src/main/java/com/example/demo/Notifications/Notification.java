@@ -4,9 +4,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Entity
@@ -16,9 +16,10 @@ public record Notification (@Id
 
                             NotificationType notificationType,
                             UserType receiverType,
-                            List<String> receiversIDs,
+                            String receiverID,
                             String message,
                             LocalDateTime createdAt,
+                            String createdAt_formatted,
                             boolean isRead
 ) {
     private static final AtomicLong counter = new AtomicLong();
@@ -26,11 +27,17 @@ public record Notification (@Id
     public Notification(
             NotificationType notificationType,
             UserType receiverType,
-            List<String> receiversIDs,
+            String receiverID,
             String message,
             LocalDateTime createdAt,
+            String createdAt_formatted,
             boolean isRead
     ) {
-        this(counter.incrementAndGet(), notificationType, receiverType, receiversIDs, message, createdAt, isRead);
+        this(counter.incrementAndGet(), notificationType, receiverType, receiverID, message, createdAt, createdAt_formatted, isRead);
+
+    }
+
+    public LocalDateTime getCreatedAt () {
+        return createdAt;
     }
 }
