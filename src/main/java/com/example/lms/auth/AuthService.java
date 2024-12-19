@@ -3,6 +3,8 @@ package com.example.lms.auth;
 import com.example.lms.auth.dto.LoginDto;
 import com.example.lms.auth.dto.RegisterDto;
 import com.example.lms.auth.dto.UpdateProfileDto;
+import com.example.lms.token.BlacklistedToken;
+import com.example.lms.token.TokenRepository;
 import com.example.lms.user.User;
 import com.example.lms.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final TokenRepository tokenRepository;
     
     public ResponseEntity<?> register(RegisterDto user) {
         if (userRepository.existsByEmail(user.getEmail())) {
@@ -55,8 +58,14 @@ public class AuthService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
-    public ResponseEntity<?> logout() {
-        return null;
+    public ResponseEntity<?> logout(String token) {
+        BlacklistedToken storedBlacklistedToken = tokenRepository.findByToken(token).orElse(null);
+        if (storedBlacklistedToken == null) {
+            BlacklistedToken newBlacklistedToken = new BlacklistedToken();
+            newBlacklistedToken.setToken(token);
+            tokenRepository.save(newBlacklistedToken);
+        }
+        return new ResponseEntity<>("Logged out successfully", HttpStatus.OK);
     }
     
     public ResponseEntity<?> getProfile(String id) {

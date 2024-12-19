@@ -1,5 +1,7 @@
 package com.example.lms.auth;
 
+import com.example.lms.token.BlacklistedToken;
+import com.example.lms.token.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -21,6 +23,11 @@ public class JwtService {
     private String secretKey;
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
+    private final TokenRepository tokenRepository;
+    
+    public JwtService(TokenRepository tokenRepository) {
+        this.tokenRepository = tokenRepository;
+    }
     
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -45,6 +52,8 @@ public class JwtService {
     
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
+        BlacklistedToken storedBlacklistedToken = tokenRepository.findByToken(token).orElse(null);
+        if (storedBlacklistedToken != null) {return false;}
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
     
