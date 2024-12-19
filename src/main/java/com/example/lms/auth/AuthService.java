@@ -36,7 +36,7 @@ public class AuthService {
         User savedUser = userRepository.save(newUser);
         String token = jwtService.generateToken(savedUser);
         Map<String, Object> response = new HashMap<>();
-        savedUser.setPassword(null); // Exclude password
+        user.setPassword(null); // Exclude password
         response.put("token", token);
         response.put("user", user);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
