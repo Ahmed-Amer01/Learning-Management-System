@@ -40,6 +40,7 @@ public class AuthController {
     @GetMapping("/profile")
     @RolesAllowed({"STUDENT", "ADMIN", "INSTRUCTOR"})
     public ResponseEntity<?> getProfile(HttpServletRequest request) {
+        System.out.println(request.getHeader(HttpHeaders.AUTHORIZATION));
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String id = jwtService.extractUsername(authHeader.substring(7));
         return authService.getProfile(id);

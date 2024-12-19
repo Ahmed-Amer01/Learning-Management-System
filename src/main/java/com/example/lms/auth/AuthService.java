@@ -33,6 +33,7 @@ public class AuthService {
         User savedUser = userRepository.save(newUser);
         String token = jwtService.generateToken(savedUser);
         Map<String, Object> response = new HashMap<>();
+        savedUser.setPassword(null); // Exclude password
         response.put("token", token);
         response.put("user", user);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -47,6 +48,7 @@ public class AuthService {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         String token = jwtService.generateToken(foundUser);
+        foundUser.setPassword(null); // Exclude password
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
         response.put("user", foundUser);
@@ -62,6 +64,7 @@ public class AuthService {
         if (user == null) {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
+        user.setPassword(null); // Exclude password
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
     
@@ -73,6 +76,7 @@ public class AuthService {
         foundUser.setName(user.getName());
         foundUser.setEmail(user.getEmail());
         foundUser = userRepository.save(foundUser);
+        foundUser.setPassword(null); // Exclude password
         return new ResponseEntity<>(foundUser, HttpStatus.OK);
     }
 }
