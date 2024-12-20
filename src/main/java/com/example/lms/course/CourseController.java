@@ -54,17 +54,20 @@ public class CourseController {
         List<Course> courses = courseService.findAll();
         
         // If the user is a student, hide the OTP or other sensitive information
-        if (user.getRole().equals(UserRole.STUDENT.name())) {
+        if (user.getRole().equals(UserRole.STUDENT)) {
         	 // If the user is a student, remove OTP from lessons
             courses.forEach(course -> {
+            	course.setStudents(null);
+            	course.setInstructor(null);
                 course.getLessons().forEach(lesson -> {
                     lesson.setOtp(null);  // Remove OTP for students
                 });
             });
+            return ResponseEntity.ok(courses);
         }
 
         // If the user is an instructor or admin, return full details
-        if (user.getRole().equals(UserRole.INSTRUCTOR.name())) {
+        if (user.getRole().equals(UserRole.INSTRUCTOR)) {
         	// Return all course details for instructors
             courses = courseService.findAll();
             return ResponseEntity.ok(courses);
@@ -73,6 +76,56 @@ public class CourseController {
         // If the user role is not authorized
         return new ResponseEntity<>("Forbidden", HttpStatus.FORBIDDEN);
     }
+    
+    // API to get related courses based on user role
+    @GetMapping("/related")
+    @RolesAllowed({"STUDENT", "INSTRUCTOR"})
+    public ResponseEntity<?> getRelatedCourses(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return new ResponseEntity<>("Token is missing or invalid", HttpStatus.UNAUTHORIZED);
+        }
+
+        String token = authHeader.substring(7);
+        String userId = jwtService.extractUsername(token);
+        if (userId == null) {
+            return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
+        }
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
+
+        List<Course> relatedCourses;
+        if (user.getRole().equals(UserRole.INSTRUCTOR)) {
+            // Return all courses created by the instructor
+            relatedCourses = courseService.findAll().stream()
+                                          .filter(course -> course.getInstructor().equals(user))
+                                          .toList();
+        } 
+        
+        else if (user.getRole().equals(UserRole.STUDENT)) {
+            // Return all courses the student is enrolled in
+            relatedCourses = courseService.findAll().stream()
+                                          .filter(course -> course.getStudents().contains(user))
+                                          .toList();
+            relatedCourses.forEach(course -> {
+            	course.setStudents(null);
+            	course.setInstructor(null);
+                course.getLessons().forEach(lesson -> {
+                    lesson.setOtp(null);  // Remove OTP for students
+                });
+            });
+        } 
+        
+        else {
+            return new ResponseEntity<>("User role not supported", HttpStatus.FORBIDDEN);
+        }
+
+        return ResponseEntity.ok(relatedCourses);
+    }
+
     
     // API for students to enroll in a course
     @RolesAllowed({"STUDENT"})
@@ -111,7 +164,7 @@ public class CourseController {
     
     // API for instructors to view enrolled students in their courses
     @GetMapping("/{courseId}/students")
-    @RolesAllowed({"INSTRUCTOR"})
+    @RolesAllowed({"INSTRUCTOR", "ADMIN"})
     public ResponseEntity<?> getEnrolledStudents(@PathVariable String courseId, HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -124,13 +177,13 @@ public class CourseController {
             return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
 
-        User instructor = userRepository.findById(userId).orElse(null);
-        if (instructor == null || !instructor.getRole().equals(UserRole.INSTRUCTOR)) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null || (!user.getRole().equals(UserRole.INSTRUCTOR) && !user.getRole().equals(UserRole.ADMIN))) {
             return new ResponseEntity<>("Unauthorized access", HttpStatus.FORBIDDEN);
         }
 
         Course course = courseService.findById(courseId).orElse(null);
-        if (course == null || !course.getInstructor().equals(instructor)) {
+        if (course == null) {
             return new ResponseEntity<>("Course not found or unauthorized", HttpStatus.FORBIDDEN);
         }
 
