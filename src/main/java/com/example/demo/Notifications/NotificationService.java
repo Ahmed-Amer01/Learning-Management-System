@@ -38,7 +38,7 @@ public class NotificationService {
         List<Notification> userNotifications = new ArrayList<>(notificationRepository.retreiveNotificationsForUser(receiverType, receiverID, isUnreadOnly));
         if (userNotifications.size() > 1)
         {
-            userNotifications.sort(Comparator.comparing(Notification::getCreatedAt).reversed());
+            userNotifications.sort(Comparator.comparing(Notification::createdAt).reversed());
         }
         return userNotifications;
     }

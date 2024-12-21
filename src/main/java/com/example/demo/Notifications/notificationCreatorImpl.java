@@ -3,11 +3,11 @@ package com.example.demo.Notifications;
 import java.time.LocalDateTime;
 import java.util.List;
 
-class notificationSenderImpl implements NotificationSender {
+class notificationCreatorImpl implements NotificationCreator {
 
     NotificationService notificationService;
 
-    notificationSenderImpl(NotificationService notificationService) {
+    notificationCreatorImpl(NotificationService notificationService) {
         this.notificationService = notificationService;
     }
 

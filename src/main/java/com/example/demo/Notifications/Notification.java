@@ -4,14 +4,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Getter
 @Entity
 public record Notification (@Id
                             @GeneratedValue(strategy = GenerationType.IDENTITY)
-                            Long notificationID,
+                            String notificationID,
 
                             NotificationType notificationType,
                             UserRole receiverType,
@@ -32,11 +34,8 @@ public record Notification (@Id
             String createdAt_formatted,
             boolean isRead
     ) {
-        this(counter.incrementAndGet(), notificationType, receiverType, receiverID, message, createdAt, createdAt_formatted, isRead);
+        this(String.valueOf(counter.incrementAndGet()), notificationType, receiverType, receiverID, message, createdAt, createdAt_formatted, isRead);
 
     }
 
-    public LocalDateTime getCreatedAt () {
-        return createdAt;
-    }
 }

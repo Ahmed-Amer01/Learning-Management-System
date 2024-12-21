@@ -3,7 +3,7 @@ package com.example.demo.Notifications;
 import java.time.LocalDateTime;
 import java.util.List;
 
-interface NotificationSender {
+interface NotificationCreator {
 
     void sendNewEnrollmentNotification(String receiverID,
                                        String enrolledStudentID,
