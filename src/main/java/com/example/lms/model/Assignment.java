@@ -1,5 +1,79 @@
 package com.example.lms.model;
 
+import com.example.lms.course.Course;
+import jakarta.persistence.*;
+import java.time.LocalDate;
+
+@Entity
+public class Assignment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id;
+
+    private String title;
+    private String description;
+    private LocalDate dueDate;
+    private int maxGrade;
+
+    @ManyToOne
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
+
+    // Getters and Setters
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public int getMaxGrade() {
+        return maxGrade;
+    }
+
+    public void setMaxGrade(int maxGrade) {
+        this.maxGrade = maxGrade;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+
+}
+
+/*package com.example.lms.model;
+
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -65,3 +139,5 @@ public class Assignment {
         this.maxGrade = maxGrade;
     }
 }
+*/
+
