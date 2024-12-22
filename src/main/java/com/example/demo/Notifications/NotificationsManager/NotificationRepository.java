@@ -1,5 +1,9 @@
-package com.example.demo.Notifications;
+package com.example.demo.Notifications.NotificationsManager;
 
+
+
+import com.example.demo.Notifications.Enums.NotificationType;
+import com.example.demo.Notifications.Enums.UserRole;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Repository;
 
@@ -20,8 +24,8 @@ public class NotificationRepository {
     List<Notification> retreiveNotificationsForUser(UserRole userRole, String userID, boolean isUnreadOnly) {
         return notifications.stream()
                 .filter(notification ->
-                        notification.receiverType() == userRole &&
-                        notification.receiverID().equals(userID) &&
+                        notification.notificationData().getReceiverType() == userRole &&
+                        notification.notificationData().getReceiverID().equals(userID) &&
                         (isUnreadOnly ? !notification.isRead() : true)
                 )
                 .toList();
@@ -49,11 +53,13 @@ public class NotificationRepository {
         String date1_formatted = date1.format(formatter);
 
         notifications.add(new Notification(
-                NotificationType.ASSIGNMENT_GRADED,
-                UserRole.STUDENT,
-                userID1,
-                message1,
-                date1,
+                new NotificationData(
+                        NotificationType.ASSIGNMENT_GRADED,
+                        UserRole.STUDENT,
+                        userID1,
+                        message1,
+                        date1
+                ),
                 date1_formatted,
                 false
         ));
@@ -65,11 +71,12 @@ public class NotificationRepository {
         String date2_formatted = date2.format(formatter);
 
         notifications.add(new Notification(
-                NotificationType.COURSE_UPDATE,
-                UserRole.STUDENT,
-                userID2,
-                message2,
-                date2,
+                new NotificationData(NotificationType.COURSE_UPDATE,
+                                    UserRole.STUDENT,
+                                    userID2,
+                                    message2,
+                                    date2
+                ),
                 date2_formatted,
                 false
         ));
@@ -81,11 +88,12 @@ public class NotificationRepository {
         String date3_formatted = date3.format(formatter);
 
         notifications.add(new Notification(
-                NotificationType.COURSE_UPDATE,
-                UserRole.STUDENT,
-                userID3,
-                message3,
-                date3,
+                new NotificationData(NotificationType.COURSE_UPDATE,
+                        UserRole.STUDENT,
+                        userID3,
+                        message3,
+                        date3
+                ),
                 date3_formatted,
                 false
         ));
@@ -96,11 +104,12 @@ public class NotificationRepository {
         String date4_formatted = date4.format(formatter);
 
         notifications.add(new Notification(
-                NotificationType.ENROLLMENT_SUCCESS,
-                UserRole.STUDENT,
-                userID4,
-                message4,
-                date4,
+                new NotificationData(NotificationType.ENROLLMENT_SUCCESS,
+                        UserRole.STUDENT,
+                        userID4,
+                        message4,
+                        date4
+                ),
                 date4_formatted,
                 false
         ));

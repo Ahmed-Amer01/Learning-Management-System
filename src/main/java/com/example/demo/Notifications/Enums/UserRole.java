@@ -1,4 +1,4 @@
-package com.example.demo.Notifications;
+package com.example.demo.Notifications.Enums;
 
 public enum UserRole {
     STUDENT,

@@ -1,6 +1,6 @@
-package com.example.demo.Notifications.DTO;
+package com.example.demo.Notifications.DTOs;
 
-import com.example.demo.Notifications.UserRole;
+import com.example.demo.Notifications.Enums.UserRole;
 
 public class NotificationRequest {
     private UserRole userRole;
@@ -13,7 +13,7 @@ public class NotificationRequest {
         this.unReadOnly = unReadOnly;
     }
 
-    public UserRole getUserType() {
+    public UserRole getUserRole() {
         return userRole;
     }
 
