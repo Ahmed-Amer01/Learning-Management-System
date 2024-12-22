@@ -4,7 +4,6 @@ import com.example.demo.Notifications.NotificationsManager.NotificationData;
 import com.example.demo.Notifications.Enums.NotificationType;
 import com.example.demo.Notifications.Enums.UserRole;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,5 +29,9 @@ public class EnrollmentCreator extends NotificationCreator {
         notificationDataList.add(notificationData2);
 
         return notificationDataList;
+    }
+
+    public String getEnrolledStudentID() {
+        return enrolledStudentID;
     }
 }

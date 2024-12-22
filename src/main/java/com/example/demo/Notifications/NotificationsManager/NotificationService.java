@@ -3,10 +3,13 @@ package com.example.demo.Notifications.NotificationsManager;
 import com.example.demo.Notifications.Enums.UserRole;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
+import com.example.lms.user.*;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,10 +18,12 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final EmailNotificationSender emailNotificationSender;
+    private final UserRepository userRepository;
 
-    NotificationService (NotificationRepository notificationRepository,EmailNotificationSender emailNotificationSender) {
+    NotificationService (NotificationRepository notificationRepository,EmailNotificationSender emailNotificationSender, UserRepository userRepository) {
         this.notificationRepository = notificationRepository;
         this.emailNotificationSender = emailNotificationSender;
+        this.userRepository = userRepository;
     }
 
     private String formatDate(LocalDateTime date) {
@@ -34,7 +39,7 @@ public class NotificationService {
     }
 
     public List <Notification> getNotifications(UserRole receiverType, String receiverID, boolean isUnreadOnly) {
-        //didn's use the return of notificationRepository.retreiveNotificationsForUser directly, because it return an immutable list, which throws an exception when sorted. To make it mutable, we first need to explicitly put it in an ArrayList
+        //didn't use the return of notificationRepository.retreiveNotificationsForUser directly, because it return an immutable list, which throws an exception when sorted. To make it mutable, we first need to explicitly put it in an ArrayList
         List<Notification> userNotifications = new ArrayList<>(notificationRepository.retreiveNotificationsForUser(receiverType, receiverID, isUnreadOnly));
         if (userNotifications.size() > 1)
         {
@@ -56,9 +61,11 @@ public class NotificationService {
         notificationRepository.create(newN);
     }
 
-    public void sendNotificationByEmail (String receiverEmailAddress, Notification notification) {
+    public void sendNotificationByEmail (Notification notification) throws IOException, InterruptedException {
+        String userID = notification.notificationData().getReceiverID();
+        User receiver = userRepository.findById(userID).orElseThrow(() -> new RuntimeException("User not found"));
         String subject = "You have a new notification from the LMS";
-        emailNotificationSender.sendEmail(receiverEmailAddress, subject, notification);
+        emailNotificationSender.sendEmail(receiver.getEmail(), subject, notification);
     }
 
 }

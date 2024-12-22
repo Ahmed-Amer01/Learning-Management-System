@@ -7,6 +7,7 @@ import com.example.demo.Notifications.NotificationCreator.EnrollmentCreator;
 import com.example.demo.Notifications.NotificationCreator.QuizGradedCreator;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,37 +24,37 @@ public class NotificationController {
 
 
     @PostMapping("{courseID}/success")
-    public List<Notification> PostEnrollmentNotification(@RequestBody EnrollmentCreator enrollmentCreator, @PathVariable int courseID) {
+    public List<Notification> PostEnrollmentNotification(@RequestBody EnrollmentCreator enrollmentCreator, @PathVariable int courseID) throws IOException, InterruptedException {
         List<Notification> ret = new ArrayList<>();
         ret.add(notificationService.addNotification(enrollmentCreator.createNewEnrollmentNotification().get(0)));
         ret.add(notificationService.addNotification(enrollmentCreator.createNewEnrollmentNotification().get(1)));
         for (Notification notification : ret) {
-            notificationService.sendNotificationByEmail("ahalfy2005@gmail.com", notification);
+            notificationService.sendNotificationByEmail(notification);
         }
         return ret;
     }
 
     @ResponseBody
     @PostMapping("{courseID}/{assignmentID}/mark")
-    public Notification PostAssignmentGradedNotification(@RequestBody AssignmentGradedCreator assignmentGradedCreator, @PathVariable int courseID, @PathVariable int assignmentID) {
+    public Notification PostAssignmentGradedNotification(@RequestBody AssignmentGradedCreator assignmentGradedCreator, @PathVariable int courseID, @PathVariable int assignmentID) throws IOException, InterruptedException {
         Notification generatedNotification = notificationService.addNotification(assignmentGradedCreator.createAssignmentGradedNotification());
-        notificationService.sendNotificationByEmail("ahalfy2005h@gmail.com", generatedNotification);
+        notificationService.sendNotificationByEmail(generatedNotification);
         return generatedNotification;
     }
 
     @ResponseBody
     @PostMapping("{courseID}/{quizID}/grade")
-    public Notification PostQuizGradedNotification(@RequestBody QuizGradedCreator quizGradedCreator, @PathVariable int courseID, @PathVariable int quizID) {
+    public Notification PostQuizGradedNotification(@RequestBody QuizGradedCreator quizGradedCreator, @PathVariable int courseID, @PathVariable int quizID) throws IOException, InterruptedException {
         Notification generatedNotification = notificationService.addNotification(quizGradedCreator.createQuizGradedNotification());
-        notificationService.sendNotificationByEmail("ahalfy2005h@gmail.com", generatedNotification);
+        notificationService.sendNotificationByEmail(generatedNotification);
         return generatedNotification;
     }
 
     @ResponseBody
     @PostMapping("{courseID}/upload")
-    public Notification PostCourseUpdateNotification(@RequestBody CourseUpdateCreator courseUpdateCreator, @PathVariable int courseID) {
+    public Notification PostCourseUpdateNotification(@RequestBody CourseUpdateCreator courseUpdateCreator, @PathVariable int courseID) throws IOException, InterruptedException {
         Notification generatedNotification = notificationService.addNotification(courseUpdateCreator.createCourseUpdateNotification());
-        notificationService.sendNotificationByEmail("ahalfy2005h@gmail.com", generatedNotification);
+        notificationService.sendNotificationByEmail(generatedNotification);
         return generatedNotification;
     }
 
