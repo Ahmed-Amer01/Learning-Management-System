@@ -1,6 +1,7 @@
 package com.example.lms.course;
 
 import com.example.lms.user.User;
+import com.example.lms.assignment.Assignment;
 import com.example.lms.lesson.Lesson;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -49,4 +50,8 @@ public class Course {
     // One-to-Many: A course can have many lessons
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Lesson> lessons = new ArrayList<>();
+    
+    // One-to-Many: A course can have many assignments
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Assignment> assignments = new ArrayList<>();
 }
