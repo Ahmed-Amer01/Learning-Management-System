@@ -16,7 +16,7 @@ public class AssignmentGradedCreator extends NotificationCreator {
     }
 
     public NotificationData createAssignmentGradedNotification() {
-        String message = "The grade of assignment " + assignmentName + " in " + courseName + " course is out now\n";
+        String message = "The grade of " + assignmentName + " in " + courseName + " course is out now\n";
         return new NotificationData(NotificationType.ASSIGNMENT_GRADED, UserRole.STUDENT, receiverID, message, createdAt);
     }
 }

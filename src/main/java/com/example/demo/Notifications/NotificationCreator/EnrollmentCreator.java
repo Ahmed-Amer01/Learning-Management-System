@@ -22,7 +22,7 @@ public class EnrollmentCreator extends NotificationCreator {
         String messageToInstructor = "A new student with ID: " + enrolledStudentID + " has enrolled in your course " + courseName + "\n";
         NotificationData notificationData1 = new NotificationData(NotificationType.NEW_ENROLLMENT, UserRole.INSTRUCTOR, courseInstructorID, messageToInstructor, createdAt);
 
-        String messageToStudent = "You have successfully enrolled in " + courseName + "\n";
+        String messageToStudent = "You have successfully enrolled in " + courseName + " course\n";
         NotificationData notificationData2 = new NotificationData(NotificationType.ENROLLMENT_SUCCESS, UserRole.STUDENT, enrolledStudentID, messageToStudent, createdAt);
 
         List<NotificationData> notificationDataList = new ArrayList<NotificationData>();

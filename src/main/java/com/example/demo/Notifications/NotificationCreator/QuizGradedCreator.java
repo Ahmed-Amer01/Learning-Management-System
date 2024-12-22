@@ -16,7 +16,7 @@ public class QuizGradedCreator extends NotificationCreator {
     }
 
     public NotificationData createQuizGradedNotification() {
-        String message = "The grade of assignment " + quizName + " in " + courseName + " course is out now\n";
+        String message = "The grade of " + quizName + " in " + courseName + " course is out now\n";
         return new NotificationData(NotificationType.QUIZ_GRADED, UserRole.STUDENT, receiverID, message, createdAt);
     }
 }

@@ -13,10 +13,12 @@ import java.util.stream.Collectors;
 @Service
 public class NotificationService {
 
-    NotificationRepository notificationRepository;
+    private final NotificationRepository notificationRepository;
+    private final EmailNotificationSender emailNotificationSender;
 
-    NotificationService (NotificationRepository notificationRepository) {
+    NotificationService (NotificationRepository notificationRepository,EmailNotificationSender emailNotificationSender) {
         this.notificationRepository = notificationRepository;
+        this.emailNotificationSender = emailNotificationSender;
     }
 
     private String formatDate(LocalDateTime date) {
@@ -52,6 +54,11 @@ public class NotificationService {
         Notification newN = new Notification(target.notificationID(), newND, target.createdAt_formatted(), true);
         notificationRepository.delete(notificationID);
         notificationRepository.create(newN);
+    }
+
+    public void sendNotificationByEmail (String receiverEmailAddress, Notification notification) {
+        String subject = "You have a new notification from the LMS";
+        emailNotificationSender.sendEmail(receiverEmailAddress, subject, notification);
     }
 
 }

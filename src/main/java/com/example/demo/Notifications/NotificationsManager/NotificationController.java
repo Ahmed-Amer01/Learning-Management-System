@@ -27,25 +27,34 @@ public class NotificationController {
         List<Notification> ret = new ArrayList<>();
         ret.add(notificationService.addNotification(enrollmentCreator.createNewEnrollmentNotification().get(0)));
         ret.add(notificationService.addNotification(enrollmentCreator.createNewEnrollmentNotification().get(1)));
+        for (Notification notification : ret) {
+            notificationService.sendNotificationByEmail("ahalfy2005@gmail.com", notification);
+        }
         return ret;
     }
 
     @ResponseBody
     @PostMapping("{courseID}/{assignmentID}/mark")
     public Notification PostAssignmentGradedNotification(@RequestBody AssignmentGradedCreator assignmentGradedCreator, @PathVariable int courseID, @PathVariable int assignmentID) {
-        return notificationService.addNotification(assignmentGradedCreator.createAssignmentGradedNotification());
+        Notification generatedNotification = notificationService.addNotification(assignmentGradedCreator.createAssignmentGradedNotification());
+        notificationService.sendNotificationByEmail("ahalfy2005h@gmail.com", generatedNotification);
+        return generatedNotification;
     }
 
     @ResponseBody
     @PostMapping("{courseID}/{quizID}/grade")
     public Notification PostQuizGradedNotification(@RequestBody QuizGradedCreator quizGradedCreator, @PathVariable int courseID, @PathVariable int quizID) {
-        return notificationService.addNotification(quizGradedCreator.createQuizGradedNotification());
+        Notification generatedNotification = notificationService.addNotification(quizGradedCreator.createQuizGradedNotification());
+        notificationService.sendNotificationByEmail("ahalfy2005h@gmail.com", generatedNotification);
+        return generatedNotification;
     }
 
     @ResponseBody
     @PostMapping("{courseID}/upload")
     public Notification PostCourseUpdateNotification(@RequestBody CourseUpdateCreator courseUpdateCreator, @PathVariable int courseID) {
-        return notificationService.addNotification(courseUpdateCreator.createCourseUpdateNotification());
+        Notification generatedNotification = notificationService.addNotification(courseUpdateCreator.createCourseUpdateNotification());
+        notificationService.sendNotificationByEmail("ahalfy2005h@gmail.com", generatedNotification);
+        return generatedNotification;
     }
 
 

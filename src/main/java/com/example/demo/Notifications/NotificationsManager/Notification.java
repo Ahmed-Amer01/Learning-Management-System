@@ -28,8 +28,20 @@ public record Notification (@Id
 
     }
 
+    public String getNotificationID () {
+        return notificationID;
+    }
+
     public NotificationData getNotificationData() {
         return notificationData;
+    }
+
+    public String getCreatedAt_formatted () {
+        return createdAt_formatted;
+    }
+
+    public boolean isRead () {
+        return isRead;
     }
 
 }
