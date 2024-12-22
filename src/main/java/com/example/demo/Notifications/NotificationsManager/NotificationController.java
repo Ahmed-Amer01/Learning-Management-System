@@ -19,6 +19,9 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
+
+
+
     @PostMapping("{courseID}/success")
     public List<Notification> PostEnrollmentNotification(@RequestBody EnrollmentCreator enrollmentCreator, @PathVariable int courseID) {
         List<Notification> ret = new ArrayList<>();
@@ -54,8 +57,11 @@ public class NotificationController {
         return notificationService.getNotifications(request.getUserRole(), request.getUserID(), request.isUnReadOnly());
     }
 
+
+
+
     @PatchMapping("notifications/{notificationID}")
-    public void patchNotification (@PathVariable Long notificationID) {
+    public void patchNotification (@PathVariable String notificationID) {
         notificationService.markNotificationAsRead(notificationID);
     }
 }

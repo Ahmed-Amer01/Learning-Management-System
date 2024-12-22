@@ -46,7 +46,7 @@ public class NotificationService {
         return userNotifications;
     }
 
-    public void markNotificationAsRead(Long notificationID) {
+    public void markNotificationAsRead(String notificationID) {
         Notification target = notificationRepository.retrieveNotificationByID(notificationID);
         NotificationData newND = new NotificationData(target.notificationData().getNotificationType(), target.notificationData().getReceiverType(), target.notificationData().getReceiverID(), target.notificationData().getMessage(), target.notificationData().getCreatedAt());
         Notification newN = new Notification(target.notificationID(), newND, target.createdAt_formatted(), true);

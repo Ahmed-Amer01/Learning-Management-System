@@ -31,14 +31,14 @@ public class NotificationRepository {
                 .toList();
     }
 
-    Notification retrieveNotificationByID(Long notificationID) {
+    Notification retrieveNotificationByID(String notificationID) {
         return notifications.stream()
                 .filter(notification -> notification.notificationID().equals(notificationID))
                 .findFirst()
                 .orElse(null);
     }
 
-    void delete (Long notificationID) {
+    void delete (String notificationID) {
         notifications.removeIf(notification -> notification.notificationID().equals(notificationID));
     }
 
