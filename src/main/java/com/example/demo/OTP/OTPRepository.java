@@ -1,11 +1,18 @@
 package com.example.demo.OTP;
 
+import com.example.demo.Notifications.NotificationsManager.Notification;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
+
 
 @Repository
+public interface OTPRepository extends JpaRepository<OTP, String> {
+    Optional<OTP> findByCourseIDAndLessonID(String courseID, String lessonID);
+}
+
+/*@Repository
 public class OTPRepository {
 
     private List<OTP> otps = new ArrayList<OTP>();
@@ -16,7 +23,7 @@ public class OTPRepository {
 
     OTP retrieve(String courseID, String lessonID) {
         for (OTP otp : otps) {
-            if (otp.courseID().equals(courseID) && otp.lessonID().equals(lessonID)) {
+            if (otp.getCourseID().equals(courseID) && otp.getLessonID().equals(lessonID)) {
                 return otp;
             }
         }
@@ -27,4 +34,4 @@ public class OTPRepository {
         otps.remove(otp);
     }
 
-}
+}*/

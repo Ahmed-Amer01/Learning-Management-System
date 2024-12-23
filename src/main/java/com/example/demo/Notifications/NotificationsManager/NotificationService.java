@@ -1,11 +1,10 @@
 package com.example.demo.Notifications.NotificationsManager;
 
 import com.example.demo.Notifications.Enums.UserRole;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-
-import com.example.lms.user.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,17 +13,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final EmailNotificationSender emailNotificationSender;
-    private final UserRepository userRepository;
 
-    NotificationService (NotificationRepository notificationRepository,EmailNotificationSender emailNotificationSender, UserRepository userRepository) {
-        this.notificationRepository = notificationRepository;
-        this.emailNotificationSender = emailNotificationSender;
-        this.userRepository = userRepository;
-    }
 
     private String formatDate(LocalDateTime date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE d/M/yyyy hh:mm a");
@@ -34,7 +28,7 @@ public class NotificationService {
     public Notification addNotification(NotificationData notificationData) {
         String date_formatted = formatDate(notificationData.getCreatedAt());
         Notification notification = new Notification(notificationData, date_formatted, false);
-        notificationRepository.create(notification);
+        notificationRepository.save(notification);
         return notification;
     }
 
@@ -54,18 +48,14 @@ public class NotificationService {
     }
 
     public void markNotificationAsRead(String notificationID) {
-        Notification target = notificationRepository.retrieveNotificationByID(notificationID);
-        NotificationData newND = new NotificationData(target.notificationData().getNotificationType(), target.notificationData().getReceiverType(), target.notificationData().getReceiverID(), target.notificationData().getMessage(), target.notificationData().getCreatedAt());
-        Notification newN = new Notification(target.notificationID(), newND, target.createdAt_formatted(), true);
-        notificationRepository.delete(notificationID);
-        notificationRepository.create(newN);
+        Notification target = notificationRepository.findById(notificationID).orElse(null);
+        target.setRead(true);
+        notificationRepository.save(target);
     }
 
     public void sendNotificationByEmail (Notification notification) throws IOException, InterruptedException {
-        String userID = notification.notificationData().getReceiverID();
-        User receiver = userRepository.findById(userID).orElseThrow(() -> new RuntimeException("User not found"));
         String subject = "You have a new notification from the LMS";
-        emailNotificationSender.sendEmail(receiver.getEmail(), subject, notification);
+        emailNotificationSender.sendEmail("ahalfy2005@gmail.com", subject, notification);
     }
 
 }

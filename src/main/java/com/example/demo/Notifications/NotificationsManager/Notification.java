@@ -1,34 +1,53 @@
 package com.example.demo.Notifications.NotificationsManager;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 @Entity
-public record Notification (@Id
-                            @GeneratedValue(strategy = GenerationType.IDENTITY)
-                            String notificationID,
+@Table(name = "notifications")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Notification {
+        @Id
+        @Column(name = "id", updatable = false, nullable = false, unique = true, length = 36)
+        private String notificationID;
 
-                            NotificationData notificationData,
+        @OneToOne(cascade = CascadeType.ALL)
+        @JoinColumn(name = "notification_data_id", referencedColumnName = "id")
+        private NotificationData notificationData;
 
-                            String createdAt_formatted,
-                            boolean isRead
-) {
-    private static final AtomicLong counter = new AtomicLong();
+        @Column(nullable = false)
+        String createdAt_formatted;
 
-    public Notification(
+        @Column(nullable = false)
+        boolean isRead;
+
+
+        private static final AtomicLong counter = new AtomicLong();
+
+
+        public Notification(NotificationData notificationData, String dateFormatted, boolean b) {
+            this.notificationID = String.valueOf(counter.incrementAndGet());
+            this.notificationData = notificationData;
+            this.createdAt_formatted = dateFormatted;
+            this.isRead = b;
+        }
+
+    //private static final AtomicLong counter = new AtomicLong();
+
+    /*public Notification(
             NotificationData notificationData,
             String createdAt_formatted,
             boolean isRead
     ) {
         this(String.valueOf(counter.incrementAndGet()), notificationData, createdAt_formatted, isRead);
+    }*/
 
-    }
-
-    public String getNotificationID () {
+    /*public String getNotificationID () {
         return notificationID;
     }
 
@@ -42,6 +61,6 @@ public record Notification (@Id
 
     public boolean isRead () {
         return isRead;
-    }
+    }*/
 
 }

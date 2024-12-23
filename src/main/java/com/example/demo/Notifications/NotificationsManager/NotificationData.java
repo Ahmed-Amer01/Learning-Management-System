@@ -2,17 +2,45 @@ package com.example.demo.Notifications.NotificationsManager;
 
 import com.example.demo.Notifications.Enums.NotificationType;
 import com.example.demo.Notifications.Enums.UserRole;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicLong;
 
-public record NotificationData (NotificationType notificationType,
-                                UserRole receiverType,
-                                String receiverID,
-                                String message,
-                                LocalDateTime createdAt
-) {
+@Entity
+@Table(name = "notification_data")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class NotificationData {
+    @Id
+    @Column(name = "id", updatable = false, nullable = false, unique = true, length = 36)
+    private String notificationDataID;
+
+    @Column(nullable = false)
+    private NotificationType notificationType;
+
+    @Column(nullable = false)
+    private UserRole receiverType;
+
+    @Column(nullable = false)
+    private String receiverID;
+
+    @Column(nullable = false)
+    private String message;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    private static final AtomicLong counter = new AtomicLong();
 
     public NotificationData(NotificationType notificationType, UserRole receiverType, String receiverID, String message, LocalDateTime createdAt) {
+        this.notificationDataID = String.valueOf(counter.incrementAndGet());
         this.notificationType = notificationType;
         this.receiverType = receiverType;
         this.receiverID = receiverID;
@@ -20,7 +48,7 @@ public record NotificationData (NotificationType notificationType,
         this.createdAt = createdAt;
     }
 
-    NotificationType getNotificationType() {
+    /*NotificationType getNotificationType() {
         return notificationType;
     }
 
@@ -38,6 +66,6 @@ public record NotificationData (NotificationType notificationType,
 
     LocalDateTime getCreatedAt() {
         return createdAt;
-    }
+    }*/
 
 }

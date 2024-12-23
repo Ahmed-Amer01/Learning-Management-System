@@ -28,7 +28,7 @@ public class OTPService {
     }
 
     OTP generateOTP(String courseID, String lessonID) {
-        OTP candidate = otpRepository.retrieve(courseID, lessonID);
+        OTP candidate = otpRepository.findByCourseIDAndLessonID(courseID, lessonID).orElse(null);
         if (candidate != null)
         {
             return candidate;
@@ -36,21 +36,21 @@ public class OTPService {
         LocalDateTime now = LocalDateTime.now();
         String format = generateRandomNumericOTP(OTP_LENGTH);
         OTP generated = new OTP(courseID, lessonID, format, now.plusMinutes(VALID_DURATION));
-        otpRepository.create(generated);
+        otpRepository.save(generated);
         return generated;
     }
 
     OTP getOTP(String courseID, String lessonID) {
-        return otpRepository.retrieve(courseID, lessonID);
+        return otpRepository.findByCourseIDAndLessonID(courseID, lessonID).orElse(null);
     }
 
     boolean verifyOTP(String courseID, String lessonID, String otpFormat) {
-        OTP validOTP = otpRepository.retrieve(courseID, lessonID);
+        OTP validOTP = otpRepository.findByCourseIDAndLessonID(courseID, lessonID).orElse(null);
         LocalDateTime now = LocalDateTime.now();
-        if (validOTP == null || !otpFormat.equals(validOTP.format()) || now.isAfter(validOTP.expirationTime()))
+        if (validOTP == null || !otpFormat.equals(validOTP.getFormat()) || now.isAfter(validOTP.getExpirationTime()))
         {
             //if the expired time on the passed otp has come, then delete it from the repository to reduce wasted speace
-            if (validOTP != null && now.isAfter(validOTP.expirationTime()))
+            if (validOTP != null && now.isAfter(validOTP.getExpirationTime()))
             {
                 otpRepository.delete(validOTP);
             }
