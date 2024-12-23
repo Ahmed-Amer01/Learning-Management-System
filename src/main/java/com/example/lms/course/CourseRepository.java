@@ -1,4 +1,3 @@
-// CourseRepository.java
 package com.example.lms.course;
 
 import org.springframework.data.jpa.repository.JpaRepository;
