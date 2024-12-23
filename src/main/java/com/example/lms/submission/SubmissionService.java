@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
 import java.util.List;
 @Service
 public class SubmissionService {
@@ -17,10 +18,10 @@ public class SubmissionService {
         return submissionRepository.save(submission);
     }
 
-    public List<Submission> getSubmissionsByAssignmentId(Long assignmentId) {
+    public List<Submission> getSubmissionsByAssignmentId(String assignmentId) {
         return submissionRepository.findByAssignmentId(assignmentId);
     }
-    public Submission addFeedback(Long submissionId, String feedback) {
+    public Submission addFeedback(String submissionId, String feedback) {
         Submission submission = submissionRepository.findById(submissionId).orElse(null);
         if (submission != null) {
             submission.setFeedback(feedback); // إضافة الملاحظات
@@ -41,12 +42,16 @@ public class SubmissionService {
         Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
         return path.toString();  // إرجاع المسار الكامل للملف
     }
-    public Submission gradeAssignment(Long submissionId, int grade) {
+    public Submission gradeAssignment(String submissionId, int grade) {
         Submission submission = submissionRepository.findById(submissionId).orElse(null);
         if (submission != null) {
             submission.setGrade(grade); // تعيين التقييم
             return submissionRepository.save(submission); // حفظ التقييم
         }
         return null;
+    }
+
+    public List<Submission> getSubmissionsByAssignmentIdAndStudentId(String assignmentId, String studentId) {
+        return submissionRepository.findByAssignmentIdAndStudentId(assignmentId, studentId);
     }
 }

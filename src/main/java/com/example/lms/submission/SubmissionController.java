@@ -18,7 +18,7 @@ public class SubmissionController {
 
     // 1. تقديم الواجب
     @PostMapping
-    public ResponseEntity<Submission> submitAssignment(@PathVariable Long courseId, @PathVariable Long assignmentId, @RequestBody Submission submission) {
+    public ResponseEntity<Submission> submitAssignment(@PathVariable String courseId, @PathVariable String assignmentId, @RequestBody Submission submission) {
         submission.setAssignmentId(assignmentId); // تعيين assignmentId للـSubmission
         Submission createdSubmission = submissionService.submitAssignment(submission); // تقديم الواجب
         return ResponseEntity.status(HttpStatus.CREATED).body(createdSubmission); // إرجاع الـSubmission مع حالة CREATED
@@ -26,14 +26,14 @@ public class SubmissionController {
 
     // 2. عرض جميع التقديمات لواجب معين
     @GetMapping
-    public ResponseEntity<List<Submission>> getSubmissionsByAssignmentId(@PathVariable Long courseId, @PathVariable Long assignmentId) {
+    public ResponseEntity<List<Submission>> getSubmissionsByAssignmentId(@PathVariable String courseId, @PathVariable String assignmentId) {
         List<Submission> submissions = submissionService.getSubmissionsByAssignmentId(assignmentId); // جلب جميع التقديمات لواجب معين
         return ResponseEntity.ok(submissions); // إرجاع التقديمات
     }
 
     // 3. إضافة ملاحظات على تقديم معين
     @PostMapping("/{submissionId}/feedback")
-    public ResponseEntity<Submission> addFeedback(@PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable Long submissionId, @RequestBody String feedback) {
+    public ResponseEntity<Submission> addFeedback(@PathVariable String courseId, @PathVariable String assignmentId, @PathVariable String submissionId, @RequestBody String feedback) {
         Submission submissionWithFeedback = submissionService.addFeedback(submissionId, feedback);
         if (submissionWithFeedback == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // إذا كان الـSubmission مش موجود
@@ -42,8 +42,8 @@ public class SubmissionController {
     }
     @PostMapping("/submit")
     public ResponseEntity<Submission> submitAssignment(
-            @PathVariable Long courseId,
-            @PathVariable Long assignmentId,
+            @PathVariable String courseId,
+            @PathVariable String assignmentId,
             @RequestParam("file") MultipartFile file,
             @RequestBody Submission submission) throws IOException {
         submission.setAssignmentId(assignmentId);
@@ -52,9 +52,9 @@ public class SubmissionController {
     }
     @PostMapping("/{submissionId}/grade")
     public ResponseEntity<Submission> gradeAssignment(
-            @PathVariable Long courseId,
-            @PathVariable Long assignmentId,
-            @PathVariable Long submissionId,
+            @PathVariable String courseId,
+            @PathVariable String assignmentId,
+            @PathVariable String submissionId,
             @RequestBody int grade) {
 
         Submission gradedSubmission = submissionService.gradeAssignment(submissionId, grade);

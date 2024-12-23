@@ -20,6 +20,7 @@ import com.example.lms.common.enums.UserRole;
 import com.example.lms.course.Course;
 import com.example.lms.course.CourseService;
 import com.example.lms.quiz.QuizAttemptService;
+import com.example.lms.submission.Submission;
 import com.example.lms.submission.SubmissionService;
 import com.example.lms.user.User;
 import com.example.lms.user.UserRepository;
@@ -97,7 +98,7 @@ public class PerformanceTrackingService {
 
       // use assignemtent IDs to get submissions
       for (Assignment assignment : assignments) {
-        submissions.addAll(submissionService.getSubmissionsByAssignmentId(assignment.getId(), String studentId));
+        submissions.addAll(submissionService.getSubmissionsByAssignmentIdAndStudentId(assignment.getId(), studentId));
       }
       performance.setAssignmentsSubmitted(submissions);
     
