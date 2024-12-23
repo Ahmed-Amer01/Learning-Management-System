@@ -2,7 +2,10 @@ package com.example.lms.quiz;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import com.example.lms.course.Course;
 import com.example.lms.question.Question;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
