@@ -1,5 +1,6 @@
 package com.example.lms.PerformanceTracking.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.example.lms.quiz.QuizAttempt;
@@ -23,10 +24,10 @@ public class StudentPerformanceDTO {
   private String courseId;
   private String courseName;
   private int totalAssignments;
-  private List<Submission> assignmentsSubmitted;
+  private List<Submission> assignmentsSubmitted = new ArrayList<>();
   private double assignmentsGrade;
   private int totalQuizzes;
-  private List<QuizAttempt> quizzesSubmitted;
+  private List<QuizAttempt> quizzesSubmitted = new ArrayList<>();
   private double quizzesGrade;
   private int daysAttended;
   private int DaysAbsent;

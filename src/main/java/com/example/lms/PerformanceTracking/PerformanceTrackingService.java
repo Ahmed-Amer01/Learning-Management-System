@@ -1,17 +1,12 @@
 package com.example.lms.PerformanceTracking;
 
-import java.io.ByteArrayOutputStream;
-import org.springframework.http.HttpHeaders;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.tomcat.util.http.parser.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.jersey.JerseyProperties.Servlet;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MimeTypeUtils;
 
 import com.example.lms.PerformanceTracking.dto.StudentPerformanceDTO;
 import com.example.lms.assignment.Assignment;
@@ -127,7 +122,7 @@ public class PerformanceTrackingService {
     return getStudentPerformanceDTOList(courses, studentId);
   }
 
-  private List<StudentPerformanceDTO> getStudentPerformanceDataByinstructorAndStudent(String instructorId, String studentId) {
+  public List<StudentPerformanceDTO> getStudentPerformanceDataByinstructorAndStudent(String instructorId, String studentId) {
     // Find the student by ID
     User student = userRepository.findById(studentId).orElse(null);
     if (student == null || !student.getRole().equals(UserRole.STUDENT)) {
@@ -254,18 +249,12 @@ public class PerformanceTrackingService {
             sheet.autoSizeColumn(i);
         }
 
-        // // Write the workbook to a byte array
-        // ByteArrayOutputStream out = new ByteArrayOutputStream();
-        // workbook.write(out);
 
-        // // Create the HTTP response
-        // HttpHeaders headersResponse = new HttpHeaders();
-        // headersResponse.setContentType(MimeTypeUtils.APPLICATION_OCTET_STREAM_VALUE);
-        // headersResponse.setContentDispositionFormData("attachment", "StudentPerformanceReport.xlsx");
-
-        // return new ResponseEntity<>(out.toByteArray(), headersResponse, HttpStatus.OK);
-
+        // Write the output to the response
         ServletOutputStream outputStream = response.getOutputStream();
+        if (outputStream == null) {
+            return new ResponseEntity<>("Error generating the report", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         workbook.write(outputStream);
         workbook.close();
         outputStream.close();
