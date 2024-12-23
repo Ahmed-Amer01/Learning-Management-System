@@ -1,6 +1,11 @@
 package com.example.lms.question;
 
+import com.example.lms.common.enums.UserRole;
+import com.example.lms.course.CourseRepository;
+import com.example.lms.user.User;
+import com.example.lms.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +17,23 @@ public class QuestionService {
     @Autowired
     private QuestionRepository questionRepository;
 
-    public void createQuestion(String courseId, QuestionDTO questionDTO) {
+    @Autowired
+    private CourseRepository courseRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public void createQuestion(String courseId, QuestionDTO questionDTO, String userId) {
+
+        if (courseRepository.findById(courseId).isEmpty()) {
+            throw new RuntimeException("Course not found with the given courseId.");
+        }
+
+        User user = userRepository.findById(userId).get();
+        if (!user.getRole().equals(UserRole.INSTRUCTOR)) {
+            throw new RuntimeException("Only Instructor can create a question.");
+        }
+
         Question question = new Question();
         question.setCourseId(courseId);
         question.setQuestionType(questionDTO.getQuestionType());
@@ -26,11 +47,38 @@ public class QuestionService {
     }
 
     public List<QuestionDTO> getAllQuestionsByCourse(String courseId) {
+
+        if (courseRepository.findById(courseId).isEmpty()) {
+            throw new RuntimeException("Course not found with the given courseId.");
+        }
+
         List<Question> questions = questionRepository.findByCourseId(courseId);
         return questions.stream().map(this::convertToDTO).toList();
     }
 
-    public void updateQuestion(String courseId, String questionId, QuestionDTO questionDTO) {
+
+    private User validateUser(String userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+
+    public void updateQuestion(String courseId, String questionId, QuestionDTO questionDTO, String userId) {
+
+        if (courseRepository.findById(courseId).isEmpty()) {
+            throw new RuntimeException("Course not found with the given courseId.");
+        }
+
+        User user = validateUser(userId);
+
+        if (!user.getRole().equals(UserRole.INSTRUCTOR)) {
+            throw new RuntimeException("Only Instructor can update a question.");
+        }
+
+        if (geQuestionByIdAndCourseId(courseId, questionId).isEmpty()) {
+            throw new RuntimeException("Question not found in the question bank.");
+        }
+
         Optional<Question> existingQuestion = questionRepository.findByCourseIdAndQuestionId(questionId, courseId);
         Question question = existingQuestion.get();
         question.setQuestionType(questionDTO.getQuestionType());
@@ -43,7 +91,22 @@ public class QuestionService {
         questionRepository.save(question);
     }
 
-    public void deleteQuestion(String courseId, String questionId) {
+    public void deleteQuestion(String courseId, String questionId, String userId) {
+
+        if (courseRepository.findById(courseId).isEmpty()) {
+            throw new RuntimeException("Course not found with the given courseId.");
+        }
+
+        User user = validateUser(userId);
+
+        if (!user.getRole().equals(UserRole.INSTRUCTOR)) {
+            throw new RuntimeException("Only Instructor can delete a question.");
+        }
+
+        if (geQuestionByIdAndCourseId(courseId, questionId).isEmpty()) {
+            throw new RuntimeException("Question not found in the question bank.");
+        }
+
         Optional<Question> existingQuestion = questionRepository.findByCourseIdAndQuestionId(questionId, courseId);
         questionRepository.delete(existingQuestion.get());
     }
