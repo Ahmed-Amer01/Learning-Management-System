@@ -1,7 +1,10 @@
 package com.example.lms.course;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.lms.common.enums.UserRole;
 import com.example.lms.lesson.Lesson;
@@ -96,8 +99,8 @@ public class CourseService {
     public Course createCourse(CourseDto courseDto, String userId) {
     	User instructor = validateUser(userId);
         
-        if (!instructor.getRole().equals(UserRole.INSTRUCTOR)) {
-            throw new RuntimeException("Only instructors can create courses.");
+    	if (!instructor.getRole().equals(UserRole.INSTRUCTOR)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only instructors can create courses.");
         }
 
         Course course = new Course();
@@ -115,11 +118,11 @@ public class CourseService {
     public void addLesson(String courseId, Lesson lessonRequest, String userId) {
     	User instructor = validateUser(userId);
         
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+    	Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
 
         if (!course.getInstructor().equals(instructor)) {
-            throw new RuntimeException("Unauthorized access");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized access");
         }
 
         Lesson lesson = new Lesson();
@@ -133,7 +136,7 @@ public class CourseService {
     
     private User validateUser(String userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
     
     // For performance

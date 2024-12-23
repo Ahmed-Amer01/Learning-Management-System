@@ -68,9 +68,15 @@ public class CourseController {
     public ResponseEntity<?> createCourse(@RequestBody CourseDto courseDto, HttpServletRequest request) {
     	String userId = extractUserId(request);
         
-        Course course = courseService.createCourse(courseDto, userId);
-        
-        return new ResponseEntity<>(course, HttpStatus.CREATED);
+    	try {
+            Course course = courseService.createCourse(courseDto, userId);
+            return new ResponseEntity<>(course, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Only instructors can create courses")) {
+                return new ResponseEntity<>("Forbidden", HttpStatus.FORBIDDEN);
+            }
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);  // Handle other exceptions
+        }
     }
     
     // API for instructors to add lessons to their courses
@@ -79,8 +85,15 @@ public class CourseController {
     public ResponseEntity<?> addLesson(@PathVariable String courseId, @RequestBody Lesson lessonRequest, HttpServletRequest request) {
     	String userId = extractUserId(request);
         
-        courseService.addLesson(courseId, lessonRequest, userId);
-        return ResponseEntity.ok("Lesson added successfully");
+    	try {
+            courseService.addLesson(courseId, lessonRequest, userId);
+            return ResponseEntity.ok("Lesson added successfully");
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
+        } catch (RuntimeException e) {
+            // You can handle other runtime exceptions here if needed
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     private String extractUserId(HttpServletRequest request) {
