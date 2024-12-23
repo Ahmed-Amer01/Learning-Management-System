@@ -1,12 +1,22 @@
 package com.example.lms.quiz;
 
+import com.example.lms.auth.JwtService;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.catalina.filters.ExpiresFilter;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/quizzes/{courseId}")
 public class QuizController {
+
+    @Autowired
+    private JwtService jwtService;
 
     @Autowired
     private QuizService quizService;
@@ -14,112 +24,78 @@ public class QuizController {
     @Autowired
     private QuizAttemptService quizAttemptService;
 
-//    @RolesAllowed({"INSTRUCTOR"})
+    @RolesAllowed({"INSTRUCTOR"})
     @PostMapping
-    public ResponseEntity<?> createQuiz(@PathVariable String courseId, @RequestParam String title, @RequestParam int questionCount) {
+    public ResponseEntity<?> createQuiz(@PathVariable String courseId, @RequestParam String title, @RequestParam int questionCount, HttpServletRequest request) {
 
-        //        if (courseService.getCourseById(courseId).isEmpty()) {
-//            return ResponseEntity.status(404).body("Course not found with the given courseId.");
-//        }
+        String userId = extractUserId(request);
 
+        Quiz quiz = quizService.createQuiz(courseId, title, questionCount, userId);
 
-        Quiz quiz = quizService.createQuiz(courseId, title, questionCount);
         return ResponseEntity.ok("Quiz created successfully with ID: " + quiz.getId());
     }
 
-//    @RolesAllowed({"INSTRUCTOR"})
+    @RolesAllowed({"INSTRUCTOR"})
     @DeleteMapping("/{quizId}")
-    public ResponseEntity<?> deleteQuiz(@PathVariable String courseId, @PathVariable String quizId) {
+    public ResponseEntity<?> deleteQuiz(@PathVariable String courseId, @PathVariable String quizId, HttpServletRequest request) {
 
-        //        if (courseService.getCourseById(courseId).isEmpty()) {
-//            return ResponseEntity.status(404).body("Course not found with the given courseId.");
-//        }
+        String userId = extractUserId(request);
 
-
-        if (quizService.getQuizForInstructor(courseId, quizId).isEmpty()) {
-            return ResponseEntity.status(404).body("Quiz with ID: " + quizId + " does not exist");
-        }
-
-        quizService.deleteQuiz(courseId, quizId);
+        quizService.deleteQuiz(courseId, quizId, userId);
         return ResponseEntity.ok("Quiz deleted successfully");
     }
 
-//    @RolesAllowed({"INSTRUCTOR"})
+    @RolesAllowed({"INSTRUCTOR"})
     @GetMapping("/{quizId}")
-    public ResponseEntity<?> getQuizForInstructor(@PathVariable String courseId, @PathVariable String quizId) {
+    public ResponseEntity<?> getQuizForInstructor(@PathVariable String courseId, @PathVariable String quizId, HttpServletRequest request) {
 
-        //        if (courseService.getCourseById(courseId).isEmpty()) {
-//            return ResponseEntity.status(404).body("Course not found with the given courseId.");
-//        }
+        String userId = extractUserId(request);
 
-
-        if (quizService.getQuizForInstructor(courseId, quizId).isEmpty()) {
-            return ResponseEntity.status(404).body("Quiz with ID: " + quizId + " does not exist");
-        }
-
-        return ResponseEntity.ok(quizService.getQuizForInstructor(courseId, quizId));
+        return ResponseEntity.ok(quizService.getQuizForInstructor(courseId, quizId, userId));
     }
 
-//    @RolesAllowed({"Student"})
+    @RolesAllowed({"Student"})
     @GetMapping("/{quizId}/students")
-    public ResponseEntity<?> getQuizForStudent(@PathVariable String courseId, @PathVariable String quizId) {
+    public ResponseEntity<?> getQuizForStudent(@PathVariable String courseId, @PathVariable String quizId, HttpServletRequest request) {
 
-        //        if (courseService.getCourseById(courseId).isEmpty()) {
-//            return ResponseEntity.status(404).body("Course not found with the given courseId.");
-//        }
+        String userId = extractUserId(request);
 
-
-        if (quizService.getQuizForInstructor(courseId, quizId).isEmpty()) {
-            return ResponseEntity.status(404).body("Quiz with ID: " + quizId + " does not exist");
-        }
-
-        return ResponseEntity.ok(quizService.getQuizForStudent(courseId, quizId));
+        return ResponseEntity.ok(quizService.getQuizForStudent(courseId, quizId, userId));
     }
 
+
+    @RolesAllowed({"Student"})
     @PostMapping("/{quizId}/students/{studentId}")
-    public ResponseEntity<?> startQuizForStudent(@PathVariable String courseId, @PathVariable String quizId, @PathVariable String studentId, @RequestBody QuizAttemptDTO attemptDTO) {
-        if (quizService.getQuizForInstructor(courseId, quizId).isEmpty()) {
-            return ResponseEntity.status(404).body("Quiz with ID: " + quizId + " does not exist");
-        }
+    public ResponseEntity<?> startQuizForStudent(@PathVariable String courseId, @PathVariable String quizId, @PathVariable String studentId,
+                                                 @RequestBody QuizAttemptDTO attemptDTO,
+                                                 HttpServletRequest request) {
 
-        //        if (studentService.getStduentById(studentId).isEmpty()) {
-//            return ResponseEntity.status(404).body("Student not found with the given studentId.");
-//        }
+        String userId = extractUserId(request);
 
-        //        if (courseService.getCourseById(courseId).isEmpty()) {
-//            return ResponseEntity.status(404).body("Course not found with the given courseId.");
-//        }
-
-
-        if (quizAttemptService.quizAttempt(courseId, studentId, quizId)) {
-            return ResponseEntity.status(404).body("You have already attempted this quiz.");
-        }
-
-        quizAttemptService.submit(courseId, studentId, quizId, attemptDTO);
+        quizAttemptService.submit(courseId, studentId, quizId, attemptDTO, userId);
         return ResponseEntity.ok(quizAttemptService.getResults(courseId, studentId, quizId));
     }
 
 
     @GetMapping("/{quizId}/students/{studentId}/result")
     public ResponseEntity<?> showQuizResultForStudent(@PathVariable String courseId, @PathVariable String quizId, @PathVariable String studentId) {
-        if (quizService.getQuizForInstructor(courseId, quizId).isEmpty()) {
-            return ResponseEntity.status(404).body("Quiz with ID: " + quizId + " does not exist");
-        }
-
-        if (!quizAttemptService.quizAttempt(courseId, studentId, quizId)) {
-            return ResponseEntity.status(404).body("You haven't attempted the quiz yet.");
-        }
-
-        //        if (studentService.getStudentById(studentId).isEmpty()) {
-//            return ResponseEntity.status(404).body("Student not found with the given studentId.");
-//        }
-
-
-        //        if (courseService.getCourseById(courseId).isEmpty()) {
-//            return ResponseEntity.status(404).body("Course not found with the given courseId.");
-//        }
 
 
         return ResponseEntity.ok(quizAttemptService.getResults(courseId, studentId, quizId));
+    }
+
+    private String extractUserId(HttpServletRequest request) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing or invalid token");
+        }
+        String token = authHeader.substring(7);
+        String userId = jwtService.extractUsername(token);
+
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing or invalid token");
+        }
+
+        return userId;
     }
 }

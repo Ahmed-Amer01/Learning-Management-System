@@ -1,6 +1,9 @@
 package com.example.lms.quiz;
 
+import com.example.lms.course.CourseRepository;
+import com.example.lms.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,8 +18,11 @@ public class QuizAttemptService {
     @Autowired
     private QuizAttemptRepository quizAttemptRepository;
 
-//    @Autowired
-//    private StudentService studentService;
+    @Autowired
+    private CourseRepository courseRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public boolean quizAttempt(String courseId, String studentId, String quizId) {
         Optional<QuizAttempt> attempt = quizAttemptRepository.findQuizAttemptByCourseIdAndStudentIdAndQuizId(courseId, studentId, quizId);
@@ -24,7 +30,25 @@ public class QuizAttemptService {
     }
 
 
-    public QuizAttempt submit(String courseId, String studentId, String quizId, QuizAttemptDTO attemptDTO) {
+    public QuizAttempt submit(String courseId, String studentId, String quizId, QuizAttemptDTO attemptDTO, String userId) {
+
+        if (courseRepository.findById(courseId).isEmpty()) {
+            throw new RuntimeException("Course not found with the given courseId.");
+        }
+
+        if (userRepository.findById(studentId).isEmpty()) {
+            throw new RuntimeException("Student not found with the given studentId.");
+        }
+
+
+        if (quizRepository.findByCourseIdAndId(courseId, quizId).isEmpty()) {
+            throw new RuntimeException("Quiz with ID: " + quizId + " does not exist");
+        }
+
+        if (quizAttempt(courseId, studentId, quizId)) {
+            throw new RuntimeException("You have already attempted this quiz.");
+        }
+
         QuizAttempt quizAttempt = new QuizAttempt();
         quizAttempt.setCourseId(courseId);
         quizAttempt.setQuiz(quizRepository.findByCourseIdAndId(courseId, quizId).get());
@@ -50,6 +74,23 @@ public class QuizAttemptService {
     }
 
     public QuizAttemptResultsDTO getResults(String courseId, String studentId, String quizId) {
+
+        if (!quizAttempt(courseId, studentId, quizId)) {
+            throw new RuntimeException("This student haven't already attempted this quiz.");
+        }
+
+        if (courseRepository.findById(courseId).isEmpty()) {
+            throw new RuntimeException("Course not found with the given courseId.");
+        }
+
+        if (userRepository.findById(studentId).isEmpty()) {
+            throw new RuntimeException("Student not found with the given studentId.");
+        }
+
+        if (quizRepository.findByCourseIdAndId(courseId, quizId).isEmpty()) {
+            throw new RuntimeException("Quiz with ID: " + quizId + " does not exist");
+        }
+
         QuizAttemptResultsDTO results = new QuizAttemptResultsDTO();
         Quiz quiz = quizRepository.findByCourseIdAndId(courseId, quizId).get();
         Optional<QuizAttempt> quizAttempt = quizAttemptRepository.findQuizAttemptByCourseIdAndStudentIdAndQuizId(courseId, studentId, quizId);
