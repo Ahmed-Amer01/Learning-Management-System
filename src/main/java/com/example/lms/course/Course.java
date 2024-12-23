@@ -43,8 +43,8 @@ public class Course {
     // Many-to-Many: A student can enroll in many courses, and a course can have many students
     @ManyToMany
     @JoinTable(
-            name = "course_students",
-            joinColumns = @JoinColumn(name = "course_id"),
+            name = "course_students", 
+            joinColumns = @JoinColumn(name = "course_id"), 
             inverseJoinColumns = @JoinColumn(name = "student_id")
     )
     private List<User> students = new ArrayList<>();
@@ -52,11 +52,12 @@ public class Course {
     // One-to-Many: A course can have many lessons
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Lesson> lessons = new ArrayList<>();
-
+    
     // One-to-Many: A course can have many assignments
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Assignment> assignments = new ArrayList<>();
 
+<<<<<<< HEAD
 //     One-to-Many: A course can have many quizzes
     @OneToMany
     @JoinTable(
@@ -76,3 +77,6 @@ public class Course {
     )
     private List<Question> questions;
 }
+=======
+}
+>>>>>>> 5be2d223172b051a506067aa763ecba77453e290
