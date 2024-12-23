@@ -5,6 +5,7 @@ import com.example.lms.quiz.Quiz;
 import com.example.lms.user.User;
 import com.example.lms.assignment.Assignment;
 import com.example.lms.lesson.Lesson;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 import lombok.*;
