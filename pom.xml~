@@ -11,8 +11,9 @@
 	<groupId>com.example</groupId>
 	<artifactId>demo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>lms</name>
+	<name>LMS</name>
 	<description>LMS for Advanced Software Engineering Course</description>
+	<name>lms</name>
 	<description>Learning management system in java</description>
 	<url/>
 	<licenses>
