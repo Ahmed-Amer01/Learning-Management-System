@@ -1,10 +1,10 @@
-package com.example.demo.Notifications.NotificationsManager;
+package com.example.lms.Notifications.NotificationsManager;
 
-import com.example.demo.Notifications.DTOs.NotificationRequest;
-import com.example.demo.Notifications.NotificationCreator.AssignmentGradedCreator;
-import com.example.demo.Notifications.NotificationCreator.CourseUpdateCreator;
-import com.example.demo.Notifications.NotificationCreator.EnrollmentCreator;
-import com.example.demo.Notifications.NotificationCreator.QuizGradedCreator;
+import com.example.lms.Notifications.DTOs.NotificationRequest;
+import com.example.lms.Notifications.NotificationCreator.AssignmentGradedCreator;
+import com.example.lms.Notifications.NotificationCreator.CourseUpdateCreator;
+import com.example.lms.Notifications.NotificationCreator.EnrollmentCreator;
+import com.example.lms.Notifications.NotificationCreator.QuizGradedCreator;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package com.example.demo.Notifications.Enums;
+package com.example.lms.Notifications.Enums;
 
 public enum NotificationType {
     //The only type for instructors

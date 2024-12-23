@@ -1,6 +1,6 @@
-package com.example.demo.Notifications.DTOs;
+package com.example.lms.Notifications.DTOs;
 
-import com.example.demo.Notifications.Enums.UserRole;
+import com.example.lms.Notifications.Enums.UserRole;
 
 public class NotificationRequest {
     private UserRole userRole;

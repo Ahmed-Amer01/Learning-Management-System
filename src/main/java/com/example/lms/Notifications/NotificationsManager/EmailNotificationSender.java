@@ -1,4 +1,4 @@
-package com.example.demo.Notifications.NotificationsManager;
+package com.example.lms.Notifications.NotificationsManager;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

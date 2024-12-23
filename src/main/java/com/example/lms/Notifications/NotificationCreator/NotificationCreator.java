@@ -1,4 +1,4 @@
-package com.example.demo.Notifications.NotificationCreator;
+package com.example.lms.Notifications.NotificationCreator;
 
 import java.time.LocalDateTime;
 

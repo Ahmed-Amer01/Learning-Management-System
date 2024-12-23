@@ -1,4 +1,4 @@
-package com.example.demo.OTP;
+package com.example.lms.OTP;
 
 import org.springframework.stereotype.Service;
 

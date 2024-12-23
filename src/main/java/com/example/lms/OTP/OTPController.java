@@ -1,4 +1,4 @@
-package com.example.demo.OTP;
+package com.example.lms.OTP;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

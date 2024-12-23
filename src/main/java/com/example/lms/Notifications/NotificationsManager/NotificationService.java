@@ -1,6 +1,6 @@
-package com.example.demo.Notifications.NotificationsManager;
+package com.example.lms.Notifications.NotificationsManager;
 
-import com.example.demo.Notifications.Enums.UserRole;
+import com.example.lms.Notifications.Enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

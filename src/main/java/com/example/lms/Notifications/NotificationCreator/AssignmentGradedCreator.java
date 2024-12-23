@@ -1,10 +1,8 @@
-package com.example.demo.Notifications.NotificationCreator;
+package com.example.lms.Notifications.NotificationCreator;
 
-import com.example.demo.Notifications.NotificationsManager.NotificationData;
-import com.example.demo.Notifications.Enums.NotificationType;
-import com.example.demo.Notifications.Enums.UserRole;
-
-import java.time.LocalDateTime;
+import com.example.lms.Notifications.NotificationsManager.NotificationData;
+import com.example.lms.Notifications.Enums.NotificationType;
+import com.example.lms.Notifications.Enums.UserRole;
 
 public class AssignmentGradedCreator extends NotificationCreator {
 

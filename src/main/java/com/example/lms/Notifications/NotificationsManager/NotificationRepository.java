@@ -1,6 +1,6 @@
-package com.example.demo.Notifications.NotificationsManager;
+package com.example.lms.Notifications.NotificationsManager;
 
-import com.example.demo.Notifications.Enums.UserRole;
+import com.example.lms.Notifications.Enums.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,9 +23,3 @@ public interface NotificationRepository extends JpaRepository<Notification, Stri
             @Param("isUnreadOnly") boolean isUnreadOnly
     );
 }
-
-//    void create (Notification notification) {
-//    List<Notification> retreiveNotificationsForUser(UserRole userRole, String userID, boolean isUnreadOnly) {
-//    Notification retrieveNotificationByID(String notificationID) {
-//    void delete (String notificationID) {
-//    private void init() {

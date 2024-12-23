@@ -1,4 +1,4 @@
-package com.example.demo.OTP;
+package com.example.lms.OTP;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

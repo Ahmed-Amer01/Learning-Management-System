@@ -1,7 +1,7 @@
-package com.example.demo.Notifications.NotificationsManager;
+package com.example.lms.Notifications.NotificationsManager;
 
-import com.example.demo.Notifications.Enums.NotificationType;
-import com.example.demo.Notifications.Enums.UserRole;
+import com.example.lms.Notifications.Enums.NotificationType;
+import com.example.lms.Notifications.Enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -47,25 +47,5 @@ public class NotificationData {
         this.message = message;
         this.createdAt = createdAt;
     }
-
-    /*NotificationType getNotificationType() {
-        return notificationType;
-    }
-
-    UserRole getReceiverType() {
-        return receiverType;
-    }
-
-    String getReceiverID() {
-        return receiverID;
-    }
-
-    String getMessage() {
-        return message;
-    }
-
-    LocalDateTime getCreatedAt() {
-        return createdAt;
-    }*/
 
 }
