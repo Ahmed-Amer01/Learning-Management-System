@@ -37,7 +37,6 @@ public class Lesson {
     private Course course;
 
     // Many-to-Many: Many students can attend many lessons
-    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "lesson_students",

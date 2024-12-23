@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class LessonService {
@@ -22,12 +20,14 @@ public class LessonService {
 
     // Create a lesson for a course
     public Lesson createLesson(LessonDto createLessonDto, String instructorId) {
+    	User instructor = validateUser(instructorId, UserRole.INSTRUCTOR);
+    	
         // Validate course
         Course course = courseRepository.findById(createLessonDto.getCourseId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
+                		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
 
         // Validate instructor authorization
-        if (!course.getInstructor().getId().equals(instructorId)) {
+        if (!course.getInstructor().equals(instructor)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the instructor of this course");
         }
 
@@ -40,18 +40,14 @@ public class LessonService {
         return lessonRepository.save(lesson);
     }
 
-    // Get lesson by ID
-    public Lesson getLessonById(String lessonId) {
-        return lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
-    }
-
     // Generate OTP for a lesson
     public Lesson generateOtp(String lessonId, String instructorId) {
+    	User instructor = validateUser(instructorId, UserRole.INSTRUCTOR);
+    	
         Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
+                		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
 
-        if (!lesson.getCourse().getInstructor().getId().equals(instructorId)) {
+        if (!lesson.getCourse().getInstructor().equals(instructor)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the instructor of this course");
         }
 
@@ -61,10 +57,12 @@ public class LessonService {
         return lessonRepository.save(lesson);
     }
     
-    public void attendLesson(String lessonId, String otp, User student) {
+    public void attendLesson(String lessonId, String otp, String studentId) {
+    	User student = validateUser(studentId, UserRole.STUDENT);
+    	
         // Retrieve the lesson
         Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
+                		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
 
         // Validate OTP
         if (!lesson.getOtp().equals(otp)) {
@@ -87,4 +85,13 @@ public class LessonService {
         lessonRepository.save(lesson);
     }
 
+    private User validateUser(String userId, UserRole requiredRole) {
+        User user = userRepository.findById(userId)
+                	.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        if (!user.getRole().equals(requiredRole)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have the required role");
+        }
+        return user;
+    }
 }
