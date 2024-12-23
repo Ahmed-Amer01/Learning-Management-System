@@ -1,5 +1,7 @@
 package com.example.lms.course;
 
+import com.example.lms.question.Question;
+import com.example.lms.quiz.Quiz;
 import com.example.lms.user.User;
 import com.example.lms.assignment.Assignment;
 import com.example.lms.lesson.Lesson;
@@ -55,4 +57,26 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Assignment> assignments = new ArrayList<>();
 
+<<<<<<< HEAD
+//     One-to-Many: A course can have many quizzes
+    @OneToMany
+    @JoinTable(
+            name = "course_quizzes",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "quiz_id")
+    )
+    private List<Quiz> quizzes = new ArrayList<>();
+
+
+    //     One-to-Many: A course can have many questions (question-bank)
+    @OneToMany
+    @JoinTable(
+            name = "course_questions",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "question_id")
+    )
+    private List<Question> questions;
 }
+=======
+}
+>>>>>>> 5be2d223172b051a506067aa763ecba77453e290

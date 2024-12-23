@@ -45,11 +45,8 @@ public class QuizService {
         Pageable pageable = PageRequest.of(0, questionCount);
         List<Question> questions = questionRepository.findRandomQuestionsByCourseId(courseId, pageable);
 
-//        Course course = courseRepository.findById(courseId).get();
-
         Quiz quiz = new Quiz();
         quiz.setTitle(title);
-//        quiz.setCourse(course);
         quiz.setCourseId(courseId);
         quiz.setQuestions(questions);
         return quizRepository.save(quiz);
