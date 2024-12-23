@@ -3,6 +3,7 @@ package com.example.lms.course;
 import com.example.lms.user.User;
 import com.example.lms.assignment.Assignment;
 import com.example.lms.lesson.Lesson;
+import com.example.lms.quiz.Quiz; // Ensure this entity exists
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
@@ -57,5 +58,5 @@ public class Course {
 
     // One-to-Many: A course can have many quizzes
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Assignment> quizzes = new ArrayList<>();
+    private List<Quiz> quizzes = new ArrayList<>();
 }
