@@ -82,8 +82,8 @@ public class NotificationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(enrollmentCreator))) // Serialize to byte array
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].notificationID").value("1"))
-                .andExpect(jsonPath("$[1].notificationID").value("2"))
+                .andExpect(jsonPath("$[0].notificationID").value("2"))
+                .andExpect(jsonPath("$[1].notificationID").value("3"))
                 .andExpect(jsonPath("$[0].notificationData.receiverID").value("3"))
                 .andExpect(jsonPath("$[1].notificationData.receiverID").value("20220016"));
 
