@@ -3,36 +3,131 @@ package com.example.lms.course;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import com.example.lms.common.enums.UserRole;
+import com.example.lms.lesson.Lesson;
+import com.example.lms.lesson.LessonRepository;
+import com.example.lms.user.User;
+import com.example.lms.user.UserRepository;
+
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CourseService {
 
     private final CourseRepository courseRepository;
+    private final LessonRepository lessonRepository;
+    private final UserRepository userRepository;
+    
+    public List<Course> getAvailableCourses(String userId) {
+    	User user = validateUser(userId);
+    	
+        List<Course> courses = courseRepository.findAll();
 
-    public Course createCourse(Course course) {
+        if (user.getRole().equals(UserRole.STUDENT)) {
+            courses.forEach(course -> {
+                course.setStudents(null);
+                course.setInstructor(null);
+                course.getLessons().forEach(lesson -> lesson.setOtp(null));
+            });
+        }
+        return courses;
+    }
+
+    public List<Course> getRelatedCourses(String userId) {
+    	User user = validateUser(userId);
+        
+        List<Course> relatedCourses;
+
+        if (user.getRole().equals(UserRole.INSTRUCTOR)) {
+            relatedCourses = courseRepository.findAll().stream()
+                    .filter(course -> course.getInstructor().equals(user))
+                    .toList();
+        } 
+        
+        else if (user.getRole().equals(UserRole.STUDENT)) {
+            relatedCourses = courseRepository.findAll().stream()
+                    .filter(course -> course.getStudents().contains(user))
+                    .toList();
+            relatedCourses.forEach(course -> {
+                course.setStudents(null);
+                course.setInstructor(null);
+                course.getLessons().forEach(lesson -> lesson.setOtp(null));
+            });
+        } 
+        
+        else {
+            throw new RuntimeException("User role not supported");
+        }
+        return relatedCourses;
+    }
+    
+    public void enrollInCourse(String courseId, String userId) {
+    	User student = validateUser(userId);
+        
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        if (!student.getRole().equals(UserRole.STUDENT)) {
+            throw new RuntimeException("Only students can enroll in courses.");
+        }
+
+        course.getStudents().add(student);
+        courseRepository.save(course);
+    }
+
+    public List<User> getEnrolledStudents(String courseId, String userId) {
+    	User user = validateUser(userId);
+        
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        if (!course.getInstructor().equals(user) && !user.getRole().equals(UserRole.ADMIN)) {
+            throw new RuntimeException("Unauthorized access");
+        }
+        return course.getStudents();
+    }
+
+    public Course createCourse(CourseDto courseDto, String userId) {
+    	User instructor = validateUser(userId);
+        
+        if (!instructor.getRole().equals(UserRole.INSTRUCTOR)) {
+            throw new RuntimeException("Only instructors can create courses.");
+        }
+
+        Course course = new Course();
+        course.setTitle(courseDto.getTitle());
+        course.setDescription(courseDto.getDescription());
+        course.setDuration(courseDto.getDuration());
+        course.setInstructor(instructor);
+        
+        instructor.getCourses().add(course);
+        userRepository.save(instructor);
+
         return courseRepository.save(course);
     }
+    
+    public void addLesson(String courseId, Lesson lessonRequest, String userId) {
+    	User instructor = validateUser(userId);
+        
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
 
-    public Optional<Course> getCourseById(String id) {
-        return courseRepository.findById(id);
+        if (!course.getInstructor().equals(instructor)) {
+            throw new RuntimeException("Unauthorized access");
+        }
+
+        Lesson lesson = new Lesson();
+        lesson.setName(lessonRequest.getName());
+        lesson.setCourse(course);
+        lessonRepository.save(lesson);
+        
+        course.getLessons().add(lesson);
+        courseRepository.save(course);
     }
-
-    public List<Course> getAllCourses() {
-        return courseRepository.findAll();
-    }
-
-    public Course updateCourse(String id, Course updatedCourse) {
-        Course existingCourse = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found"));
-        existingCourse.setTitle(updatedCourse.getTitle());
-        existingCourse.setDescription(updatedCourse.getDescription());
-        existingCourse.setDuration(updatedCourse.getDuration());
-        return courseRepository.save(existingCourse);
-    }
-
-    public void deleteCourse(String id) {
-        courseRepository.deleteById(id);
+    
+    private User validateUser(String userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
