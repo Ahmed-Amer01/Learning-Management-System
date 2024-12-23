@@ -5,7 +5,6 @@ import com.example.lms.quiz.Quiz;
 import com.example.lms.user.User;
 import com.example.lms.assignment.Assignment;
 import com.example.lms.lesson.Lesson;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -57,7 +56,6 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Assignment> assignments = new ArrayList<>();
 
-<<<<<<< HEAD
 //     One-to-Many: A course can have many quizzes
     @OneToMany
     @JoinTable(
@@ -77,6 +75,3 @@ public class Course {
     )
     private List<Question> questions;
 }
-=======
-}
->>>>>>> 5be2d223172b051a506067aa763ecba77453e290
