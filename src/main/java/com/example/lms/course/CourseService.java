@@ -71,6 +71,11 @@ public class CourseService {
         if (!student.getRole().equals(UserRole.STUDENT)) {
             throw new RuntimeException("Only students can enroll in courses.");
         }
+        
+        // Check if the student is already enrolled
+        if (course.getStudents().contains(student)) {
+            throw new RuntimeException("Student is already enrolled in this course.");
+        }
 
         course.getStudents().add(student);
         courseRepository.save(course);
