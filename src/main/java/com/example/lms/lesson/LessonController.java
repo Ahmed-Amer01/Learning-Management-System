@@ -40,10 +40,10 @@ public class LessonController {
     
     @PostMapping("/{lessonId}/attend")
     @RolesAllowed({"STUDENT"})
-    public ResponseEntity<?> attendLesson(@PathVariable String lessonId, @RequestBody String otp, HttpServletRequest request) {
+    public ResponseEntity<?> attendLesson(@PathVariable String lessonId, @RequestBody OtpDto otp, HttpServletRequest request) {
     	String studentId = extractUserId(request);
     	
-    	lessonService.attendLesson(lessonId, otp, studentId);
+    	lessonService.attendLesson(lessonId, otp.getOtp(), studentId);
         return new ResponseEntity<>("Attendance marked successfully", HttpStatus.OK);
     }
     
