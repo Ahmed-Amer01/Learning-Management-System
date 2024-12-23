@@ -20,6 +20,7 @@ public class SubmissionService {
     public List<Submission> getSubmissionsByAssignmentId(Long assignmentId) {
         return submissionRepository.findByAssignmentId(assignmentId);
     }
+    /*
     public Submission addFeedback(Long submissionId, String feedback) {
         Submission submission = submissionRepository.findById(submissionId).orElse(null);
         if (submission != null) {
@@ -27,6 +28,13 @@ public class SubmissionService {
             return submissionRepository.save(submission); // حفظ التغيير
         }
         return null;
+    }
+     */
+    public Submission addFeedback(Long submissionId, String feedback) {
+        Submission submission = submissionRepository.findById(submissionId).orElseThrow(() ->
+                new IllegalArgumentException("Submission not found with ID: " + submissionId));
+        submission.setFeedback(feedback);
+        return submissionRepository.save(submission);
     }
     public Submission submitAssignmentWithFile(Submission submission, MultipartFile file) throws IOException {
         // حفظ الملف في المسار المناسب
@@ -41,12 +49,18 @@ public class SubmissionService {
         Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
         return path.toString();  // إرجاع المسار الكامل للملف
     }
-    public Submission gradeAssignment(Long submissionId, int grade) {
-        Submission submission = submissionRepository.findById(submissionId).orElse(null);
-        if (submission != null) {
-            submission.setGrade(grade); // تعيين التقييم
-            return submissionRepository.save(submission); // حفظ التقييم
-        }
-        return null;
+    public Submission gradeAssignment(Long submissionId, String grade) {
+        // 1. العثور على التقديم
+        Submission submission = submissionRepository.findById(submissionId).orElseThrow(() ->
+                new IllegalArgumentException("Submission not found with ID: " + submissionId));
+
+        // 2. تعيين الدرجة (نخزنها كـ String)
+        submission.setGrade(grade);
+
+        // 3. حفظ التقديم بعد التعديل
+        return submissionRepository.save(submission);
     }
+
+
 }
+
