@@ -18,7 +18,9 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
-    
+    public Optional<Course> getCourseById(String id) {
+        return courseRepository.findById(id);
+    }
     public List<Course> getAvailableCourses(String userId) {
     	User user = validateUser(userId);
     	
