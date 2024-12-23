@@ -20,9 +20,6 @@ public class Question {
     private String questionId;
 
     @Column(nullable = false)
-    private String courseId;
-
-    @Column(nullable = false)
     private String questionType;
 
     @Column(nullable = false)
@@ -36,4 +33,10 @@ public class Question {
 
     @Column(nullable = false)
     private String answer;
+
+    // Many-to-One: Many questions belong to a single course
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
 }

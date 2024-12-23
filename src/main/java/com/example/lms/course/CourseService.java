@@ -217,4 +217,12 @@ public class CourseService {
 
         return (double) attendedLessons / totalLessons * 100;
     }
+    
+    // for quizzes
+    public Course getCourseById(String courseId) {
+        // Fetch the course
+        Course course = courseRepository.findById(courseId)
+        				.orElseThrow(() -> new RuntimeException("Course not found"));
+        return course;
+    }
 }
