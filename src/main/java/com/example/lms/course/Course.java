@@ -54,12 +54,4 @@ public class Course {
     // One-to-Many: A course can have many assignments
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Assignment> assignments = new ArrayList<>();
-
-    // // One-to-Many: A course can have many quizzes
-    // @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    // private List<Assignment> quizzes = new ArrayList<>();
-
-    // // One-to-Many: A course can have many questions (questions bank)
-    // @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    // private List<Assignment> questions = new ArrayList<>();
 }
