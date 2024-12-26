@@ -100,18 +100,4 @@ public class QuizAttemptService {
         results.setAttemptTime(quizAttempt.get().getAttemptTime());
         return results;
     }
-
-    public List<QuizAttempt> getQuizzesSubmittedByStudent(String studentId, String courseId) {
-        return quizAttemptRepository.findQuizAttemptsByCourseIdAndStudentId(studentId, courseId);
-    }
-
-
-    public double getQuizzesGradeByStudent(String studentId, String courseId) {
-        List<QuizAttempt> quizAttempts = quizAttemptRepository.findQuizAttemptsByCourseIdAndStudentId(studentId, courseId);
-        double totalScore = 0;
-        for (QuizAttempt quizAttempt : quizAttempts) {
-            totalScore += quizAttempt.getScore();
-        }
-        return totalScore;
-    }
 }

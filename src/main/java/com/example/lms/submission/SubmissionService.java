@@ -60,9 +60,6 @@ public class SubmissionService {
         // 3. حفظ التقديم بعد التعديل
         return submissionRepository.save(submission);
     }
-
-    public List<Submission> getSubmissionsByAssignmentIdAndStudentId(String assignmentId, String studentId) {
-        return submissionRepository.findByAssignmentIdAndStudentId(assignmentId, studentId);
-    }
+    
 }
 
