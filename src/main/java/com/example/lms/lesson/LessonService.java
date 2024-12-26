@@ -6,6 +6,9 @@ import com.example.lms.common.enums.UserRole;
 import com.example.lms.course.*;
 
 import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -52,7 +55,9 @@ public class LessonService {
         }
 
         String otp = String.valueOf((int) (Math.random() * 9000) + 1000); // Generate 4-digit OTP
+        LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(10); // OTP valid for 10 minutes
         lesson.setOtp(otp);
+        lesson.setOtpExpirationTime(expirationTime);
 
         return lessonRepository.save(lesson);
     }
@@ -64,6 +69,11 @@ public class LessonService {
         Lesson lesson = lessonRepository.findById(lessonId)
                 		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
 
+        // Validate OTP expiration
+        if (lesson.getOtpExpirationTime() == null || LocalDateTime.now().isAfter(lesson.getOtpExpirationTime())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OTP expired");
+        }
+        
         // Validate OTP
         if (!lesson.getOtp().equals(otp)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid OTP");
