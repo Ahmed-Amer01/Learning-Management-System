@@ -1,6 +1,7 @@
 package com.example.lms.assignment;
 
 import com.example.lms.course.Course;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
@@ -15,6 +16,7 @@ public class Assignment {
 
     private String title;
     private String description;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
     private int maxGrade;
 

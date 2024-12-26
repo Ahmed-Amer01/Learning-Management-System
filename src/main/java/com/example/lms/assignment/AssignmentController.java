@@ -28,7 +28,9 @@ public class AssignmentController {
 
     // 1. إنشاء واجب جديد
     @PostMapping
-    public ResponseEntity<?> createAssignment(@PathVariable String courseId, @RequestBody Assignment assignment, HttpServletRequest request) {
+    public ResponseEntity<?> createAssignment(@PathVariable String courseId,
+                                              @RequestBody AssignmentDto assignmentDto,
+                                              HttpServletRequest request) {
         // استخراج التوكن من الهيدر
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -51,6 +53,13 @@ public class AssignmentController {
 
         // التحقق من دور المستخدم
         if (user.getRole().equals(UserRole.INSTRUCTOR)) {
+            // تحويل الـ AssignmentDto إلى Assignment
+            Assignment assignment = new Assignment();
+            assignment.setTitle(assignmentDto.getTitle());
+            assignment.setDescription(assignmentDto.getDescription());
+            assignment.setDueDate(assignmentDto.getDueDate());
+
+            // استدعاء الخدمة لإنشاء الواجب
             Assignment createdAssignment = assignmentService.createAssignment(courseId, assignment);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdAssignment);
         } else {
@@ -65,3 +74,4 @@ public class AssignmentController {
         return ResponseEntity.ok(assignments);
     }
 }
+
