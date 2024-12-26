@@ -1,5 +1,6 @@
 package com.example.lms.notification;
 
+import com.example.lms.common.enums.UserRole;
 import com.example.lms.Notifications.DTOs.NotificationRequest;
 import com.example.lms.Notifications.Enums.NotificationType;
 import com.example.lms.Notifications.NotificationCreator.EnrollmentCreator;
@@ -24,7 +25,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import static com.example.lms.Notifications.Enums.UserRole.STUDENT;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -55,11 +55,11 @@ public class NotificationControllerTest {
         objectMapper.registerModule(new JavaTimeModule());
 
         // Create EnrollmentCreator object
-        EnrollmentCreator enrollmentCreator = new EnrollmentCreator("222", "Operating Systems", "20220016", "3");
+        EnrollmentCreator enrollmentCreator = new EnrollmentCreator("222", "Operating Systems", "3");
 
         // Create NotificationData using the EnrollmentCreator
-        NotificationData notificationData1 = enrollmentCreator.createNewEnrollmentNotification().get(0);
-        NotificationData notificationData2 = enrollmentCreator.createNewEnrollmentNotification().get(1);
+        NotificationData notificationData1 = enrollmentCreator.createNewEnrollmentNotification("20220016").get(0);
+        NotificationData notificationData2 = enrollmentCreator.createNewEnrollmentNotification("20220016").get(1);
 
         String createdAt_formatted = "Monday 23/12/2024 7:57 PM";
         Notification notification1 = new Notification(notificationData1, createdAt_formatted, false);
@@ -93,13 +93,13 @@ public class NotificationControllerTest {
 
     @Test
     void testGetNotifications() throws Exception {
-        NotificationRequest request = new NotificationRequest(STUDENT, "123456", true);
+        NotificationRequest request = new NotificationRequest(UserRole.STUDENT, "123456", true);
         LocalDateTime now = LocalDateTime.now();
         String createdAt_formatted = "Monday 23/12/2024 7:57 PM";
-        NotificationData notificationData = new NotificationData(NotificationType.ASSIGNMENT_GRADED, STUDENT, "123456", "assignment 2 has been graded", now);
+        NotificationData notificationData = new NotificationData(NotificationType.ASSIGNMENT_GRADED, UserRole.STUDENT, "123456", "assignment 2 has been graded", now);
         Notification notification1 = new Notification(notificationData, createdAt_formatted, true);
 
-        Mockito.when(notificationService.getNotifications(STUDENT, "123456", true))
+        Mockito.when(notificationService.getNotifications(UserRole.STUDENT, "123456", true))
                 .thenReturn(List.of(notification1));
 
         mockMvc.perform(get("/notifications")

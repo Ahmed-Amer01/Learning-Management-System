@@ -1,7 +1,7 @@
 package com.example.lms.Notifications.NotificationsManager;
 
+import com.example.lms.common.enums.UserRole;
 import com.example.lms.Notifications.Enums.NotificationType;
-import com.example.lms.Notifications.Enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

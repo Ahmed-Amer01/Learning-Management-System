@@ -1,6 +1,7 @@
 package com.example.lms.Notifications.NotificationsManager;
 
-import com.example.lms.Notifications.Enums.UserRole;
+import com.example.lms.common.enums.UserRole;
+import com.example.lms.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final EmailNotificationSender emailNotificationSender;
+    private final UserRepository userRepository;
 
 
     private String formatDate(LocalDateTime date) {
@@ -55,7 +57,8 @@ public class NotificationService {
 
     public void sendNotificationByEmail (Notification notification) throws IOException, InterruptedException {
         String subject = "You have a new notification from the LMS";
-        emailNotificationSender.sendEmail("ahalfy2005@gmail.com", subject, notification);
+        String receiverEmailAddress = userRepository.findById(notification.getNotificationData().getReceiverID()).orElse(null).getEmail();
+        emailNotificationSender.sendEmail(receiverEmailAddress, subject, notification);
     }
 
 }
