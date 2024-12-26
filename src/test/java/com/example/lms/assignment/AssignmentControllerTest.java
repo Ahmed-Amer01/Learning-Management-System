@@ -3,10 +3,15 @@ package com.example.lms.assignment;
 import com.example.lms.assignment.Assignment;
 import com.example.lms.assignment.AssignmentController;
 import com.example.lms.assignment.AssignmentService;
+import com.example.lms.auth.JwtService;
+import com.example.lms.common.enums.UserRole;
 import com.example.lms.assignment.AssignmentRepository;
 import com.example.lms.course.Course;
 import com.example.lms.course.CourseRepository;
 import com.example.lms.course.CourseService;
+import com.example.lms.user.User;
+import com.example.lms.user.UserRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,8 +24,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -36,12 +45,24 @@ class AssignmentControllerTest {
     @InjectMocks
     private AssignmentController assignmentController;
 
+    @Mock
+    private JwtService jwtService;
+
+    @Mock
+    private UserRepository userRepository;
+
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(assignmentController).build();
+        }
+    
+        private User mockUserWithRole(String role) {
+            User user = new User();
+            user.setRole(UserRole.valueOf(role));
+            return user;
     }
 
     @Test
@@ -61,12 +82,18 @@ class AssignmentControllerTest {
         // Mocking the service call
         when(assignmentService.createAssignment(eq(courseId), any(Assignment.class))).thenReturn(assignment);
 
+        // Mock authentication
+        when(jwtService.extractUsername(anyString())).thenReturn("instructor123");
+        when(userRepository.findById("instructor123"))
+            .thenReturn(Optional.of(mockUserWithRole("INSTRUCTOR")));
+
         // Prepare the request body as JSON
         String jsonRequest = "{\"title\":\"Assignment Title\",\"description\":\"Assignment Description\",\"dueDate\":\"2024-12-31\",\"maxGrade\":100}";
 
         // Act & Assert
         mockMvc.perform(post("/courses/{courseId}/assignments", courseId)
                         .contentType("application/json")
+                        .header("Authorization", "Bearer validToken") // Add header
                         .content(jsonRequest)) // Pass the correct JSON structure
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("Assignment Title"))
