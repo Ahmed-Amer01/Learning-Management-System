@@ -25,16 +25,13 @@ public class LessonService {
     public Lesson createLesson(LessonDto createLessonDto, String instructorId) {
     	User instructor = validateUser(instructorId, UserRole.INSTRUCTOR);
     	
-        // Validate course
         Course course = courseRepository.findById(createLessonDto.getCourseId())
                 		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
 
-        // Validate instructor authorization
         if (!course.getInstructor().equals(instructor)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the instructor of this course");
         }
 
-        // Create and save lesson
         Lesson lesson = Lesson.builder()
                 .name(createLessonDto.getName())
                 .course(course)
@@ -43,7 +40,6 @@ public class LessonService {
         return lessonRepository.save(lesson);
     }
 
-    // Generate OTP for a lesson
     public Lesson generateOtp(String lessonId, String instructorId) {
     	User instructor = validateUser(instructorId, UserRole.INSTRUCTOR);
     	
@@ -65,32 +61,26 @@ public class LessonService {
     public void attendLesson(String lessonId, String otp, String studentId) {
     	User student = validateUser(studentId, UserRole.STUDENT);
     	
-        // Retrieve the lesson
         Lesson lesson = lessonRepository.findById(lessonId)
                 		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
 
-        // Validate OTP expiration
         if (lesson.getOtpExpirationTime() == null || LocalDateTime.now().isAfter(lesson.getOtpExpirationTime())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OTP expired");
         }
         
-        // Validate OTP
         if (!lesson.getOtp().equals(otp)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid OTP");
         }
 
-        // Validate student enrollment in the course
         Course course = lesson.getCourse();
         if (!course.getStudents().contains(student)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not enrolled in this course");
         }
 
-        // Check if attendance is already marked
         if (lesson.getStudentsAttended().contains(student)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Attendance already marked for this lesson");
         }
 
-        // Mark attendance
         lesson.getStudentsAttended().add(student);
         lessonRepository.save(lesson);
     }

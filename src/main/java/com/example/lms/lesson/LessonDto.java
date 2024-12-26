@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LessonDto {
     private String name;
-    private String courseId; // ID of the course to which the lesson belongs
+    private String courseId;
 }

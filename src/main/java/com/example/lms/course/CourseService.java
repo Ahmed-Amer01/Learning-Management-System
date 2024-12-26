@@ -32,6 +32,7 @@ public class CourseService {
                 course.setStudents(null);
                 course.setInstructor(null);
                 course.getLessons().forEach(lesson -> lesson.setOtp(null));
+                course.getLessons().forEach(lesson -> lesson.setStudentsAttended(null));
             });
         }
         return courses;
@@ -56,6 +57,7 @@ public class CourseService {
                 course.setStudents(null);
                 course.setInstructor(null);
                 course.getLessons().forEach(lesson -> lesson.setOtp(null));
+                course.getLessons().forEach(lesson -> lesson.setStudentsAttended(null));
             });
         } 
         
@@ -75,7 +77,6 @@ public class CourseService {
             throw new RuntimeException("Only students can enroll in courses.");
         }
         
-        // Check if the student is already enrolled
         if (course.getStudents().contains(student)) {
             throw new RuntimeException("Student is already enrolled in this course.");
         }
@@ -134,6 +135,21 @@ public class CourseService {
         courseRepository.save(course);
     }
     
+    public Course getCourseById(String courseId, String userId) {
+        User user = validateUser(userId);
+        
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        if (user.getRole().equals(UserRole.STUDENT)) {
+            course.setInstructor(null);
+            course.setStudents(null);
+            course.getLessons().forEach(lesson -> lesson.setOtp(null));
+            course.getLessons().forEach(lesson -> lesson.setStudentsAttended(null));
+        }
+        return course;
+    }
+    
     private User validateUser(String userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
@@ -141,81 +157,66 @@ public class CourseService {
     
     // For performance
     public int getDaysAttendedByStudent(String courseId, String studentId) {
-        // Validate the student
         User student = validateUser(studentId);
         if (!student.getRole().equals(UserRole.STUDENT)) {
             throw new RuntimeException("Only students can have attendance checked.");
         }
 
-        // Validate the course
         Course course = courseRepository.findById(courseId)
                 		.orElseThrow(() -> new RuntimeException("Course not found"));
 
-        // Verify if the student is enrolled in the course
         if (!course.getStudents().contains(student)) {
             throw new RuntimeException("Student is not enrolled in the course.");
         }
 
-        // Count the number of times the student attended lessons in the course
         long attendanceCount = course.getLessons().stream()
-                .filter(lesson -> lesson.getStudentsAttended().contains(student)) // Filter lessons attended by the student
+                .filter(lesson -> lesson.getStudentsAttended().contains(student))
                 .count();
 
-        return (int) attendanceCount; // Return the total attendance count as an integer
+        return (int) attendanceCount;
     }
     
     public int getDaysAbsentByStudent(String courseId, String studentId) {
-        // Validate the student
         User student = validateUser(studentId);
         if (!student.getRole().equals(UserRole.STUDENT)) {
             throw new RuntimeException("Only students can have attendance checked.");
         }
 
-        // Validate the course
         Course course = courseRepository.findById(courseId)
                 		.orElseThrow(() -> new RuntimeException("Course not found"));
 
-        // Verify if the student is enrolled in the course
         if (!course.getStudents().contains(student)) {
             throw new RuntimeException("Student is not enrolled in the course.");
         }
 
-        // Calculate the total number of lessons in the course
         long totalLessons = course.getLessons().size();
 
-        // Count the number of lessons the student attended
         long attendedLessons = course.getLessons().stream()
-                .filter(lesson -> lesson.getStudentsAttended().contains(student)) // Filter lessons attended by the student
+                .filter(lesson -> lesson.getStudentsAttended().contains(student))
                 .count();
 
-        // Calculate the number of lessons the student was absent
         long absentLessons = totalLessons - attendedLessons;
 
-        return (int) absentLessons; // Return the total absence count as an integer
+        return (int) absentLessons;
     }
 
     public double getAttendancePercentage(String courseId, String studentId) {
-        // Validate the student
         User student = validateUser(studentId);
         if (!student.getRole().equals(UserRole.STUDENT)) {
             throw new RuntimeException("Only students can have attendance checked.");
         }
 
-        // Validate the course
         Course course = courseRepository.findById(courseId)
                 		.orElseThrow(() -> new RuntimeException("Course not found"));
 
-        // Verify if the student is enrolled in the course
         if (!course.getStudents().contains(student)) {
             throw new RuntimeException("Student is not enrolled in the course.");
         }
 
-        // Calculate the total number of lessons in the course
         long totalLessons = course.getLessons().size();
 
-        // Count the number of lessons the student attended
         long attendedLessons = course.getLessons().stream()
-                .filter(lesson -> lesson.getStudentsAttended().contains(student)) // Filter lessons attended by the student
+                .filter(lesson -> lesson.getStudentsAttended().contains(student))
                 .count();
 
         return (double) attendedLessons / totalLessons * 100;
@@ -223,7 +224,6 @@ public class CourseService {
     
     // for quizzes
     public Course getCourseById(String courseId) {
-        // Fetch the course
         Course course = courseRepository.findById(courseId)
         				.orElseThrow(() -> new RuntimeException("Course not found"));
         return course;

@@ -27,8 +27,6 @@ public class CourseController {
     @RolesAllowed({"STUDENT", "INSTRUCTOR"})
     public  ResponseEntity<?> getAvailableCourses(HttpServletRequest request) {
     	String userId = extractUserId(request);
-//        // If the user role is not authorized
-//        return new ResponseEntity<>("Forbidden", HttpStatus.FORBIDDEN);
         return ResponseEntity.ok(courseService.getAvailableCourses(userId));
     }
     
@@ -91,8 +89,21 @@ public class CourseController {
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(e.getReason(), e.getStatusCode());
         } catch (RuntimeException e) {
-            // You can handle other runtime exceptions here if needed
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    // API to get a course by its ID
+    @GetMapping("/{courseId}")
+    @RolesAllowed({"STUDENT", "INSTRUCTOR", "ADMIN"})
+    public ResponseEntity<?> getCourseById(@PathVariable String courseId, HttpServletRequest request) {
+        String userId = extractUserId(request);
+        
+        try {
+            Course course = courseService.getCourseById(courseId, userId);
+            return ResponseEntity.ok(course);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
     

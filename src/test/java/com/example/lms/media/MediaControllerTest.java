@@ -41,7 +41,6 @@ class MediaControllerTest {
 
     @Test
     void testUploadMedia_Success() throws Exception {
-        // Arrange
         String lessonId = "lesson123";
         String instructorId = "instructor123";
 
@@ -59,7 +58,6 @@ class MediaControllerTest {
         when(jwtService.extractUsername(anyString())).thenReturn(instructorId);
         when(mediaService.uploadMedia(eq(lessonId), any(MultipartFile.class), eq(instructorId))).thenReturn(media);
 
-        // Act & Assert
         mockMvc.perform(multipart("/media/{lessonId}/upload", lessonId)
                         .file(file)
                         .header("Authorization", "Bearer validToken"))
@@ -74,7 +72,6 @@ class MediaControllerTest {
 
     @Test
     void testGetMediaByLesson_Success() throws Exception {
-        // Arrange
         String lessonId = "lesson123";
 
         Media media = Media.builder()
@@ -86,7 +83,6 @@ class MediaControllerTest {
 
         when(mediaService.getMediaByLesson(lessonId)).thenReturn(Collections.singletonList(media));
 
-        // Act & Assert
         mockMvc.perform(get("/media/{lessonId}", lessonId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("media123"))
@@ -99,12 +95,10 @@ class MediaControllerTest {
 
     @Test
     void testGetMediaByLesson_LessonNotFound() throws Exception {
-        // Arrange
         String lessonId = "invalidLessonId";
 
         when(mediaService.getMediaByLesson(lessonId)).thenThrow(new RuntimeException("Lesson not found"));
 
-        // Act & Assert
         mockMvc.perform(get("/media/{lessonId}", lessonId))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Lesson not found"));

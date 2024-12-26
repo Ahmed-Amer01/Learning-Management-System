@@ -1,8 +1,11 @@
 package com.example.lms.course;
 
 import com.example.lms.auth.JwtService;
+import com.example.lms.common.enums.UserRole;
 import com.example.lms.lesson.Lesson;
 import com.example.lms.lesson.LessonDto;
+import com.example.lms.user.User;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -40,12 +43,10 @@ class CourseControllerTest {
 
     @Test
     void testGetAvailableCourses() throws Exception {
-        // Arrange
         String userId = "user123";
         when(jwtService.extractUsername(anyString())).thenReturn(userId);
         when(courseService.getAvailableCourses(userId)).thenReturn(Collections.emptyList());
 
-        // Act & Assert
         mockMvc.perform(get("/courses/available")
                 .header("Authorization", "Bearer validToken"))
                 .andExpect(status().isOk())
@@ -56,12 +57,10 @@ class CourseControllerTest {
 
     @Test
     void testGetRelatedCourses() throws Exception {
-        // Arrange
         String userId = "user123";
         when(jwtService.extractUsername(anyString())).thenReturn(userId);
         when(courseService.getRelatedCourses(userId)).thenReturn(Collections.emptyList());
 
-        // Act & Assert
         mockMvc.perform(get("/courses/related")
                 .header("Authorization", "Bearer validToken"))
                 .andExpect(status().isOk())
@@ -72,13 +71,11 @@ class CourseControllerTest {
 
     @Test
     void testEnrollInCourse() throws Exception {
-        // Arrange
         String userId = "user123";
         String courseId = "course123";
         doNothing().when(courseService).enrollInCourse(courseId, userId);
         when(jwtService.extractUsername(anyString())).thenReturn(userId);
 
-        // Act & Assert
         mockMvc.perform(post("/courses/{courseId}/enroll", courseId)
                 .header("Authorization", "Bearer validToken"))
                 .andExpect(status().isOk())
@@ -89,57 +86,47 @@ class CourseControllerTest {
 
     @Test
     void testCreateCourse() throws Exception {
-        // Arrange
         String userId = "user123";
 
-        // Create CourseDto with the required fields
         CourseDto courseDto = new CourseDto();
         courseDto.setTitle("Course Title");
         courseDto.setDescription("Course Description");
         courseDto.setDuration(30);
 
-        // Create Course object to be returned from the service
         Course course = new Course();
         course.setId("course123");
         course.setTitle("Course Title");
         course.setDescription("Course Description");
         course.setDuration(30);
-        course.setInstructor(null);  // You can set a valid instructor if needed
+        course.setInstructor(null);
         course.setStudents(Collections.emptyList());
         course.setLessons(Collections.emptyList());
 
-        // Mocking the behavior of courseService to return the created Course
         when(courseService.createCourse(any(CourseDto.class), eq(userId))).thenReturn(course);
 
-        // Mocking jwtService to return the userId
         when(jwtService.extractUsername(anyString())).thenReturn(userId);
 
-        // Prepare the request body as JSON
         String jsonRequest = "{\"title\":\"Course Title\",\"description\":\"Course Description\",\"duration\":30}";
 
-        // Act & Assert
         mockMvc.perform(post("/courses/create")
                 .contentType("application/json")
                 .header("Authorization", "Bearer validToken")
-                .content(jsonRequest)) // Pass the correct JSON structure
+                .content(jsonRequest))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value("course123"))
                 .andExpect(jsonPath("$.title").value("Course Title"))
                 .andExpect(jsonPath("$.description").value("Course Description"));
 
-        // Verify the service was called with the correct parameters
         verify(courseService, times(1)).createCourse(any(CourseDto.class), eq(userId));
     }
 
     @Test
     void testGetEnrolledStudents() throws Exception {
-        // Arrange
         String userId = "user123";
         String courseId = "course123";
         when(jwtService.extractUsername(anyString())).thenReturn(userId);
         when(courseService.getEnrolledStudents(courseId, userId)).thenReturn(Collections.emptyList());
 
-        // Act & Assert
         mockMvc.perform(get("/courses/{courseId}/students", courseId)
                 .header("Authorization", "Bearer validToken"))
                 .andExpect(status().isOk())
@@ -150,61 +137,100 @@ class CourseControllerTest {
 
     @Test
     void testAddLesson() throws Exception {
-        // Arrange
         String userId = "user123";
         String courseId = "course123";
 
-        // Create LessonDto with required fields
         LessonDto lessonDto = new LessonDto();
         lessonDto.setName("Lesson Title");
-        lessonDto.setCourseId(courseId); // Set the courseId as it might be required in the DTO.
-
-        // Mocking behavior of the courseService to handle addLesson
+        lessonDto.setCourseId(courseId);
+        
         doNothing().when(courseService).addLesson(eq(courseId), any(Lesson.class), eq(userId));
 
-        // Mock the JWT service to return the userId
         when(jwtService.extractUsername(anyString())).thenReturn(userId);
 
-        // Prepare the request body as JSON
         String jsonRequest = "{\"name\":\"Lesson Title\", \"courseId\":\"" + courseId + "\"}";
 
-        // Act & Assert
         mockMvc.perform(post("/courses/{courseId}/add-lesson", courseId)
                 .contentType("application/json")
                 .header("Authorization", "Bearer validToken")
-                .content(jsonRequest)) // Pass the correct JSON structure
+                .content(jsonRequest))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Lesson added successfully"));
 
-        // Verify the service was called with the correct parameters
         verify(courseService, times(1)).addLesson(eq(courseId), any(Lesson.class), eq(userId));
     }
 
     @Test
     void testAddLesson_InvalidCourseId() throws Exception {
-        // Arrange
         String userId = "user123";
         String invalidCourseId = "invalidCourseId";
 
-        // Mocking behavior for invalid courseId
         doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"))
             .when(courseService).addLesson(eq(invalidCourseId), any(Lesson.class), eq(userId));
 
-        // Mock the JWT service to return the userId
         when(jwtService.extractUsername(anyString())).thenReturn(userId);
 
-        // Prepare the request body as JSON
         String jsonRequest = "{\"name\":\"Lesson Title\", \"courseId\":\"" + invalidCourseId + "\"}";
 
-        // Act & Assert
         mockMvc.perform(post("/courses/{courseId}/add-lesson", invalidCourseId)
                 .contentType("application/json")
                 .header("Authorization", "Bearer validToken")
                 .content(jsonRequest))
-                .andExpect(status().isNotFound()) // Expect a 404 status
-                .andExpect(content().string("Course not found")); // Expect the message "Course not found"
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Course not found"));
 
-        // Verify the service was called
         verify(courseService, times(1)).addLesson(eq(invalidCourseId), any(Lesson.class), eq(userId));
+    }
+    
+    @Test
+    void testGetCourseById() throws Exception {
+        // Arrange
+        String userId = "user123";
+        String courseId = "course123";
+
+        User instructor = new User();
+        instructor.setRole(UserRole.INSTRUCTOR);
+        instructor.setId("instructor123");
+        instructor.setName("Instructor Name");
+        instructor.setEmail("instructor@example.com");
+        instructor.setPassword("password");
+
+        Course course = new Course();
+        course.setId(courseId);
+        course.setTitle("Course Title");
+        course.setDescription("Course Description");
+        course.setDuration(30);
+        course.setInstructor(instructor);
+        course.setStudents(null);
+
+        when(jwtService.extractUsername(anyString())).thenReturn(userId);
+        when(courseService.getCourseById(courseId, userId)).thenReturn(course);
+
+        mockMvc.perform(get("/courses/{courseId}", courseId)
+                .header("Authorization", "Bearer validToken"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(courseId))
+                .andExpect(jsonPath("$.title").value("Course Title"))
+                .andExpect(jsonPath("$.instructor.id").value("instructor123"))
+                .andExpect(jsonPath("$.students").doesNotExist())
+                .andExpect(jsonPath("$.lessons").exists());
+
+        verify(courseService, times(1)).getCourseById(courseId, userId);
+    }
+
+    @Test
+    void testGetCourseById_NotFound() throws Exception {
+        String userId = "user123";
+        String courseId = "nonexistentCourseId";
+
+        when(jwtService.extractUsername(anyString())).thenReturn(userId);
+        when(courseService.getCourseById(courseId, userId)).thenThrow(new RuntimeException("Course not found"));
+
+        mockMvc.perform(get("/courses/{courseId}", courseId)
+                .header("Authorization", "Bearer validToken"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Course not found"));
+
+        verify(courseService, times(1)).getCourseById(courseId, userId);
     }
 }
