@@ -2,6 +2,7 @@ package com.example.lms.quiz;
 
 import com.example.lms.auth.JwtService;
 import com.example.lms.common.enums.UserRole;
+import com.example.lms.question.Question;
 import com.example.lms.user.User;
 import com.example.lms.course.Course;
 import com.example.lms.course.CourseRepository;
@@ -30,13 +31,13 @@ class QuizControllerTest {
 
     @Mock
     private JwtService jwtService;
-    
+
     @Mock
     private QuizAttemptService quizAttemptService;  // Mock the service
 
     @Mock
     private QuizAttemptRepository quizAttemptRepository;
-    
+
     @InjectMocks
     private QuizController quizController;
 
@@ -63,9 +64,9 @@ class QuizControllerTest {
         when(quizService.createQuiz(courseId, "Quiz Title", 10, userId)).thenReturn(quiz);
 
         mockMvc.perform(post("/quizzes/{courseId}", courseId)
-                .header("Authorization", "Bearer validToken")
-                .param("title", "Quiz Title")
-                .param("questionCount", "10"))
+                        .header("Authorization", "Bearer validToken")
+                        .param("title", "Quiz Title")
+                        .param("questionCount", "10"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Quiz created successfully with ID: quiz123"));
 
@@ -82,7 +83,7 @@ class QuizControllerTest {
         when(jwtService.extractUsername(anyString())).thenReturn(userId);
 
         mockMvc.perform(delete("/quizzes/{courseId}/{quizId}", courseId, quizId)
-                .header("Authorization", "Bearer validToken"))
+                        .header("Authorization", "Bearer validToken"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Quiz deleted successfully"));
 
@@ -103,7 +104,7 @@ class QuizControllerTest {
         when(quizService.getQuizForInstructor(courseId, quizId, userId)).thenReturn(java.util.Optional.of(quiz));
 
         mockMvc.perform(get("/quizzes/{courseId}/{quizId}", courseId, quizId)
-                .header("Authorization", "Bearer validToken"))
+                        .header("Authorization", "Bearer validToken"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(quizId))
                 .andExpect(jsonPath("$.title").value("Quiz Title"));
@@ -123,7 +124,7 @@ class QuizControllerTest {
         when(quizService.getQuizForStudent(courseId, quizId, userId)).thenReturn(quizDTO);
 
         mockMvc.perform(get("/quizzes/{courseId}/{quizId}/students", courseId, quizId)
-                .header("Authorization", "Bearer validToken"))
+                        .header("Authorization", "Bearer validToken"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Quiz Title"));
 
@@ -139,26 +140,43 @@ class QuizControllerTest {
 
         // Create the QuizAttemptDTO with a list of answers
         QuizAttemptDTO attemptDTO = new QuizAttemptDTO();
-        attemptDTO.setAnswers(List.of("answer"));
+        attemptDTO.setAnswers(List.of("TRUE")); // Adjusted to match expected answer
+
+        // Create the mock Quiz object
+        Quiz mockQuiz = new Quiz();
+        mockQuiz.setId("1");
+        mockQuiz.setCourseId("1");
+        mockQuiz.setTitle("quiz");
+
+        Question mockQuestion = new Question();
+        mockQuestion.setQuestionId("1");
+        mockQuestion.setCourseId("1");
+        mockQuestion.setQuestionType("TRUE/FALSE");
+        mockQuestion.setQuestionText("this is quesiton?");
+        mockQuestion.setChoices(Collections.emptyList());
+        mockQuestion.setAnswer("TRUE");
+
+        mockQuiz.setQuestions(List.of(mockQuestion));
 
         // Create the mock QuizAttempt object
         QuizAttempt mockQuizAttempt = new QuizAttempt();
         mockQuizAttempt.setCourseId(courseId);
         mockQuizAttempt.setStudentId(studentId);
-        mockQuizAttempt.setQuiz(new Quiz());
+        mockQuizAttempt.setQuiz(mockQuiz);
         mockQuizAttempt.setAnswers(attemptDTO.getAnswers());
         mockQuizAttempt.setScore(1);
         mockQuizAttempt.setAttemptTime(LocalDateTime.now());
 
-        // Mock the save method of quizAttemptRepository to return the mock object
+        // Mock the save method of quizAttemptRepository
         when(quizAttemptRepository.save(any(QuizAttempt.class))).thenReturn(mockQuizAttempt);
 
-        // Mock the getResults method to return the mock results DTO
+        // Mock the getResults method
         QuizAttemptResultsDTO mockResultsDTO = new QuizAttemptResultsDTO();
         mockResultsDTO.setAnswers(mockQuizAttempt.getAnswers());
         mockResultsDTO.setScore(mockQuizAttempt.getScore());
         mockResultsDTO.setAttemptTime(mockQuizAttempt.getAttemptTime());
-        mockResultsDTO.setQuiz(new Quiz());
+        mockResultsDTO.setQuiz(mockQuiz);
+
         when(quizAttemptService.getResults(courseId, studentId, quizId)).thenReturn(mockResultsDTO);
 
         // Mock JWT token extraction
@@ -166,17 +184,25 @@ class QuizControllerTest {
 
         // Perform the test
         mockMvc.perform(post("/quizzes/{courseId}/{quizId}/students/{studentId}", courseId, quizId, studentId)
-                .header("Authorization", "Bearer validToken")
-                .contentType("application/json")
-                .content("{\"answers\":[\"answer\"]}"))
+                        .header("Authorization", "Bearer validToken")
+                        .contentType("application/json")
+                        .content("{\"answers\":[\"TRUE\"]}")) // Adjusted the content to match expected JSON
                 .andExpect(status().isOk())
                 .andDo(result -> {
                     System.out.println(result.getResponse().getContentAsString());
-                })  // Debugging response
-                .andExpect(jsonPath("$.answers").value(mockQuizAttempt.getAnswers()))  // Corrected the assertion
-                .andExpect(jsonPath("$.score").value(mockQuizAttempt.getScore())); // Optionally, add a check for score
+                }) // Debugging response
+                .andExpect(jsonPath("$.answers[0]").value("TRUE"))
+                .andExpect(jsonPath("$.quiz.id").value("1"))
+                .andExpect(jsonPath("$.quiz.courseId").value("1"))
+                .andExpect(jsonPath("$.quiz.title").value("quiz"))
+                .andExpect(jsonPath("$.quiz.questions[0].questionId").value("1"))
+                .andExpect(jsonPath("$.quiz.questions[0].questionType").value("TRUE/FALSE"))
+                .andExpect(jsonPath("$.quiz.questions[0].questionText").value("this is quesiton?"))
+                .andExpect(jsonPath("$.quiz.questions[0].answer").value("TRUE"))
+                .andExpect(jsonPath("$.score").value(1))
+                .andExpect(jsonPath("$.attemptTime").exists());
 
-        // Verify the submit and getResults methods were called
+        // Verify method calls
         verify(quizAttemptService, times(1)).submit(courseId, studentId, quizId, attemptDTO, userId);
         verify(quizAttemptService, times(1)).getResults(courseId, studentId, quizId);
     }
@@ -187,12 +213,28 @@ class QuizControllerTest {
         String quizId = "quiz123";
         String studentId = "student123";
 
+        // Prepare a mock Quiz object
+        Quiz mockQuiz = new Quiz();
+        mockQuiz.setId("1");
+        mockQuiz.setCourseId("1");
+        mockQuiz.setTitle("quiz");
+
+        Question mockQuestion = new Question();
+        mockQuestion.setQuestionId("1");
+        mockQuestion.setCourseId("1");
+        mockQuestion.setQuestionType("TRUE/FALSE");
+        mockQuestion.setQuestionText("this is quesiton?");
+        mockQuestion.setChoices(Collections.emptyList());
+        mockQuestion.setAnswer("TRUE");
+
+        mockQuiz.setQuestions(List.of(mockQuestion));
+
         // Prepare a mock QuizAttempt
         QuizAttempt mockQuizAttempt = new QuizAttempt();
         mockQuizAttempt.setCourseId(courseId);
         mockQuizAttempt.setStudentId(studentId);
-        mockQuizAttempt.setQuiz(new Quiz());
-        mockQuizAttempt.setAnswers(List.of("answer"));
+        mockQuizAttempt.setQuiz(mockQuiz);
+        mockQuizAttempt.setAnswers(List.of("TRUE"));
         mockQuizAttempt.setScore(1);
         mockQuizAttempt.setAttemptTime(LocalDateTime.now());
 
@@ -201,7 +243,7 @@ class QuizControllerTest {
         mockResultsDTO.setAnswers(mockQuizAttempt.getAnswers());
         mockResultsDTO.setScore(mockQuizAttempt.getScore());
         mockResultsDTO.setAttemptTime(mockQuizAttempt.getAttemptTime());
-        mockResultsDTO.setQuiz(new Quiz());
+        mockResultsDTO.setQuiz(mockQuiz);
 
         // Mock the getResults method to return the mock results DTO
         when(quizAttemptService.getResults(courseId, studentId, quizId)).thenReturn(mockResultsDTO);
@@ -212,16 +254,24 @@ class QuizControllerTest {
 
         // Perform the test
         mockMvc.perform(get("/quizzes/{courseId}/{quizId}/students/{studentId}/result", courseId, quizId, studentId)
-                .header("Authorization", "Bearer validToken"))
+                        .header("Authorization", "Bearer validToken"))
                 .andExpect(status().isOk())
                 .andDo(result -> {
                     System.out.println(result.getResponse().getContentAsString());
-                })  // Debugging response
-                .andExpect(jsonPath("$.answers").value(List.of("answer")))  // Expect answers to be returned
-                .andExpect(jsonPath("$.score").value(1))  // Expect the score to be 1
-                .andExpect(jsonPath("$.quiz").exists());  // Ensure quiz is present in the response
+                }) // Debugging response
+                .andExpect(jsonPath("$.answers[0]").value("TRUE")) // Expect specific answer
+                .andExpect(jsonPath("$.score").value(1)) // Ensure score is correct
+                .andExpect(jsonPath("$.quiz.id").value("1")) // Validate quiz fields
+                .andExpect(jsonPath("$.quiz.courseId").value("1"))
+                .andExpect(jsonPath("$.quiz.title").value("quiz"))
+                .andExpect(jsonPath("$.quiz.questions[0].questionId").value("1"))
+                .andExpect(jsonPath("$.quiz.questions[0].questionType").value("TRUE/FALSE"))
+                .andExpect(jsonPath("$.quiz.questions[0].questionText").value("this is quesiton?"))
+                .andExpect(jsonPath("$.quiz.questions[0].answer").value("TRUE"))
+                .andExpect(jsonPath("$.attemptTime").exists()); // Ensure attemptTime exists
 
         // Verify that the getResults method was called
         verify(quizAttemptService, times(1)).getResults(courseId, studentId, quizId);
     }
+
 }

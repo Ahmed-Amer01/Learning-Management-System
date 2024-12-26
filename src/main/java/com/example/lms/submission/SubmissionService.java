@@ -17,7 +17,7 @@ public class SubmissionService {
         return submissionRepository.save(submission);
     }
 
-    public List<Submission> getSubmissionsByAssignmentId(Long assignmentId) {
+    public List<Submission> getSubmissionsByAssignmentId(String assignmentId) {
         return submissionRepository.findByAssignmentId(assignmentId);
     }
     /*
@@ -49,7 +49,7 @@ public class SubmissionService {
         Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
         return path.toString();  // إرجاع المسار الكامل للملف
     }
-    public Submission gradeAssignment(Long submissionId, String grade) {
+    public Submission gradeAssignment(Long submissionId, Long grade) {
         // 1. العثور على التقديم
         Submission submission = submissionRepository.findById(submissionId).orElseThrow(() ->
                 new IllegalArgumentException("Submission not found with ID: " + submissionId));
@@ -60,6 +60,9 @@ public class SubmissionService {
         // 3. حفظ التقديم بعد التعديل
         return submissionRepository.save(submission);
     }
-    
+
+    public List<Submission> getSubmissionsByAssignmentIdAndStudentId(String assignmentId, String studentId) {
+        return submissionRepository.findByAssignmentIdAndStudentId(assignmentId, studentId);
+    }
 }
 
