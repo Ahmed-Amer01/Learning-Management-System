@@ -150,6 +150,20 @@ public class CourseService {
         return course;
     }
     
+    public void deleteCourse(String courseId, String userId) {
+        User user = validateUser(userId);
+
+        Course course = courseRepository.findById(courseId)
+                		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
+
+        if (!course.getInstructor().equals(user) && !user.getRole().equals(UserRole.ADMIN)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized access");
+        }
+
+        courseRepository.delete(course);
+    }
+
+    
     private User validateUser(String userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));

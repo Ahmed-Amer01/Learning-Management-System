@@ -73,6 +73,22 @@ public class MediaService {
         return lesson.getMediaList();
     }
     
+    public Media getMediaById(String mediaId) {
+        return mediaRepository.findById(mediaId)
+                .orElseThrow(() -> new RuntimeException("Media not found"));
+    }
+
+    public byte[] getMediaContent(String mediaId) throws IOException {
+        Media media = getMediaById(mediaId);
+
+        Path path = Paths.get(media.getFilePath());
+        if (!Files.exists(path)) {
+            throw new RuntimeException("Media file not found on the server");
+        }
+
+        return Files.readAllBytes(path);
+    }
+    
     private void validateInstructor(String instructorId) {
         User user = userRepository.findById(instructorId)
                 .orElseThrow(() -> new RuntimeException("Invalid instructor ID"));

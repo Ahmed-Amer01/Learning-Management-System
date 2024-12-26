@@ -105,4 +105,29 @@ class MediaControllerTest {
 
         verify(mediaService, times(1)).getMediaByLesson(lessonId);
     }
+    
+    @Test
+    void testViewMedia_Success() throws Exception {
+        String mediaId = "media123";
+
+        Media media = Media.builder()
+                .id(mediaId)
+                .filename("test.txt")
+                .fileType("text/plain")
+                .filePath("/media/test.txt")
+                .build();
+
+        byte[] mediaContent = "File content".getBytes();
+
+        when(mediaService.getMediaById(mediaId)).thenReturn(media);
+        when(mediaService.getMediaContent(mediaId)).thenReturn(mediaContent);
+
+        mockMvc.perform(get("/media/{mediaId}/view", mediaId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "text/plain"))
+                .andExpect(content().bytes(mediaContent));
+
+        verify(mediaService, times(1)).getMediaById(mediaId);
+        verify(mediaService, times(1)).getMediaContent(mediaId);
+    }
 }

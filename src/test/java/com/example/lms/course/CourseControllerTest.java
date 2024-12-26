@@ -233,4 +233,20 @@ class CourseControllerTest {
 
         verify(courseService, times(1)).getCourseById(courseId, userId);
     }
+    
+    @Test
+    void testDeleteCourse() throws Exception {
+        String courseId = "course123";
+        String userId = "user123";
+
+        when(jwtService.extractUsername(anyString())).thenReturn(userId);
+        doNothing().when(courseService).deleteCourse(courseId, userId);
+
+        mockMvc.perform(delete("/courses/{courseId}", courseId)
+                .header("Authorization", "Bearer validToken"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Course deleted successfully"));
+
+        verify(courseService, times(1)).deleteCourse(courseId, userId);
+    }
 }

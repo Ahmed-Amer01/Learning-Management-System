@@ -107,6 +107,23 @@ public class CourseController {
         }
     }
     
+    // API for deleting a course
+    @DeleteMapping("/{courseId}")
+    @RolesAllowed({"INSTRUCTOR", "ADMIN"})
+    public ResponseEntity<?> deleteCourse(@PathVariable String courseId, HttpServletRequest request) {
+        String userId = extractUserId(request);
+
+        try {
+            courseService.deleteCourse(courseId, userId);
+            return ResponseEntity.ok("Course deleted successfully");
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    
     private String extractUserId(HttpServletRequest request) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
