@@ -34,7 +34,7 @@ public class SubmissionController {
 
     // 1. تقديم الواجب
     @PostMapping
-    public ResponseEntity<?> submitAssignment(@PathVariable String courseId, @PathVariable Long assignmentId, @RequestBody SubmissionDto submissionDto, HttpServletRequest request) {
+    public ResponseEntity<?> submitAssignment(@PathVariable String courseId, @PathVariable String assignmentId, @RequestBody SubmissionDto submissionDto, HttpServletRequest request) {
         // Extract the JWT token from the Authorization header
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -78,7 +78,7 @@ public class SubmissionController {
 
     // 2. عرض جميع التقديمات لواجب معين
     @GetMapping
-    public ResponseEntity<List<Submission>> getSubmissionsByAssignmentId(@PathVariable Long courseId, @PathVariable Long assignmentId) {
+    public ResponseEntity<List<Submission>> getSubmissionsByAssignmentId(@PathVariable Long courseId, @PathVariable String assignmentId) {
         List<Submission> submissions = submissionService.getSubmissionsByAssignmentId(assignmentId); // جلب جميع التقديمات لواجب معين
         return ResponseEntity.ok(submissions); // إرجاع التقديمات
     }
@@ -87,7 +87,7 @@ public class SubmissionController {
     @PostMapping("/{submissionId}/feedback")
     public ResponseEntity<?> addFeedback(
             @PathVariable Long submissionId,
-            @RequestBody String feedback,
+            @RequestBody FeedbackDTO feedbackDTO,
             HttpServletRequest request) {
 
         // 1. Extract JWT Token
@@ -115,7 +115,7 @@ public class SubmissionController {
         }
 
         // 5. Add feedback to the submission
-        Submission submissionWithFeedback = submissionService.addFeedback(submissionId, feedback);
+        Submission submissionWithFeedback = submissionService.addFeedback(submissionId, feedbackDTO.getFeedback());  // تمرير الـ feedback كـ String
         if (submissionWithFeedback == null) {
             return new ResponseEntity<>("Submission not found", HttpStatus.NOT_FOUND);
         }
@@ -127,7 +127,7 @@ public class SubmissionController {
     @PostMapping("/{submissionId}/grade")
     public ResponseEntity<?> gradeAssignment(
             @PathVariable Long submissionId,
-            @RequestBody String grade,  // تعديل هنا ليكون String بدل int
+            @RequestBody GradeDto gradeDTO,  // تعديل هنا ليكون String بدل int
             HttpServletRequest request) {
 
         // 1. استخراج الـ JWT token
@@ -155,7 +155,7 @@ public class SubmissionController {
         }
 
         // 5. تعيين الدرجة للتقديم
-        Submission gradedSubmission = submissionService.gradeAssignment(submissionId, grade);  // تمرير الـ grade كـ String
+        Submission gradedSubmission = submissionService.gradeAssignment(submissionId, gradeDTO.getGrade());  // تمرير الـ grade كـ Long
         if (gradedSubmission == null) {
             return new ResponseEntity<>("Submission not found", HttpStatus.NOT_FOUND);
         }

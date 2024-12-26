@@ -15,10 +15,10 @@ public class Submission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long assignmentId;
+    private String assignmentId;
     private String studentId;
     private String filePath;
-    private String grade;
+    private Long grade;
     private String feedback;
     private LocalDateTime submittedDate;
 
