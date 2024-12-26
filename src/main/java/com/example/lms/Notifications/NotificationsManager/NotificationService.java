@@ -34,9 +34,9 @@ public class NotificationService {
         return notification;
     }
 
-    public List <Notification> getNotifications(UserRole receiverType, String receiverID, boolean isUnreadOnly) {
+    public List <Notification> getNotifications(String receiverID, boolean isUnreadOnly) {
         //didn't use the return of notificationRepository.retreiveNotificationsForUser directly, because it return an immutable list, which throws an exception when sorted. To make it mutable, we first need to explicitly put it in an ArrayList
-        List<Notification> userNotifications = new ArrayList<>(notificationRepository.retreiveNotificationsForUser(receiverType, receiverID, isUnreadOnly));
+        List<Notification> userNotifications = new ArrayList<>(notificationRepository.retreiveNotificationsForUser(receiverID, isUnreadOnly));
         if (userNotifications.size() > 1)
         {
             userNotifications = userNotifications.stream()

@@ -1,6 +1,5 @@
 package com.example.lms.Notifications.NotificationsManager;
 
-import com.example.lms.Notifications.DTOs.NotificationRequest;
 import com.example.lms.Notifications.NotificationCreator.AssignmentGradedCreator;
 import com.example.lms.Notifications.NotificationCreator.CourseUpdateCreator;
 import com.example.lms.Notifications.NotificationCreator.EnrollmentCreator;
@@ -8,7 +7,6 @@ import com.example.lms.Notifications.NotificationCreator.QuizGradedCreator;
 import com.example.lms.auth.JwtService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -80,10 +78,12 @@ public class NotificationController {
 
     @GetMapping("notifications")
     @ResponseBody
-    public List<Notification> getNotifications(@RequestBody NotificationRequest request) {
-        return notificationService.getNotifications(request.getUserRole(), request.getUserID(), request.isUnReadOnly());
+    public List<Notification> getNotifications(HttpServletRequest request) {
+        String userID = extractUserId(request);
+        String isUnreadOnly_string = extractHeaderValue(request, "isUnreadOnly");
+        boolean isUnreadOnly_boolean = isUnreadOnly_string.equals("true")? true : false;
+        return notificationService.getNotifications(userID, isUnreadOnly_boolean);
     }
-
 
 
 
@@ -108,4 +108,13 @@ public class NotificationController {
 
         return userId;
     }
+
+    private String extractHeaderValue(HttpServletRequest request, String headerKey) {
+        String headerValue = request.getHeader(headerKey);
+        if (headerValue == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing header: " + headerKey);
+        }
+        return headerValue;
+    }
+
 }

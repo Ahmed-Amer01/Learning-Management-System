@@ -17,8 +17,8 @@ public class EnrollmentCreator extends NotificationCreator {
         this.courseInstructorID = courseInstructorID;
     }
 
-    public List<NotificationData> createNewEnrollmentNotification(String creatorID) {
-        enrolledStudentID = creatorID;
+    public List<NotificationData> createNewEnrollmentNotification(String loggedInUserID) {
+        enrolledStudentID = loggedInUserID;
         String messageToInstructor = "A new student with ID: " + enrolledStudentID + " has enrolled in your course " + courseName + "\n";
         NotificationData notificationData1 = new NotificationData(NotificationType.NEW_ENROLLMENT, UserRole.INSTRUCTOR, courseInstructorID, messageToInstructor, createdAt);
 
