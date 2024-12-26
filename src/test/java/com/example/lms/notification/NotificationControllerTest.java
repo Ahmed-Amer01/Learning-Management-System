@@ -1,4 +1,4 @@
-package com.example.lms;
+package com.example.lms.notification;
 
 import com.example.lms.Notifications.DTOs.NotificationRequest;
 import com.example.lms.Notifications.Enums.NotificationType;
