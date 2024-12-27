@@ -8,6 +8,10 @@ import com.example.lms.course.Course;
 import com.example.lms.course.CourseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.mockito.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.*;
@@ -47,15 +51,16 @@ class SubmissionControllerTest {
     }
 
     @Test
-    void testSubmitAssignment() throws Exception {
+    void testSubmitAssignmentWithFile() throws Exception {
         // إعداد البيانات
         String courseId = "course1";
         String assignmentId = "assignment1";
         String token = "validToken";
         String userId = "user1";
 
-        SubmissionDto submissionDto = new SubmissionDto();
-        submissionDto.setFilePath("uploads/assignment1.pdf");
+        MockMultipartFile mockFile = new MockMultipartFile(
+                "file", "assignment1.pdf", MediaType.APPLICATION_PDF_VALUE, "Test file content".getBytes()
+        );
 
         User user = new User();
         user.setId(userId);
@@ -66,7 +71,7 @@ class SubmissionControllerTest {
 
         Submission submission = new Submission();
         submission.setId(1L);
-        submission.setFilePath(submissionDto.getFilePath());
+        submission.setFilePath("uploads/assignment1.pdf");
         submission.setAssignmentId(assignmentId);
         submission.setStudentId(userId);
         submission.setSubmittedDate(LocalDateTime.now());
@@ -75,19 +80,15 @@ class SubmissionControllerTest {
         when(jwtService.extractUsername(token)).thenReturn(userId);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(courseService.getCourseById(courseId)).thenReturn(course);
-        when(submissionService.submitAssignment(Mockito.any(Submission.class))).thenReturn(submission);
+        when(submissionService.submitAssignmentWithFile(Mockito.any(Submission.class), Mockito.any())).thenReturn(submission);
 
         // تنفيذ الطلب واختباره
-        mockMvc.perform(post("/courses/{courseId}/assignments/{assignmentId}/submissions", courseId, assignmentId)
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                    "filePath": "uploads/assignment1.pdf"
-                                }
-                                """))
+        mockMvc.perform(multipart("/courses/{courseId}/assignments/{assignmentId}/submissions", courseId, assignmentId)
+                        .file(mockFile)
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isCreated());
     }
+
 
     @Test
     void testAddFeedback() throws Exception {

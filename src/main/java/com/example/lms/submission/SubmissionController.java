@@ -7,6 +7,7 @@ import com.example.lms.user.User;
 import com.example.lms.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.lms.course.Course;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,48 +35,55 @@ public class SubmissionController {
     @Autowired
     private CourseService courseService;
 
-    // 1. تقديم الواجب
     @PostMapping
-    public ResponseEntity<?> submitAssignment(@PathVariable String courseId, @PathVariable String assignmentId, @RequestBody SubmissionDto submissionDto, HttpServletRequest request) {
-        // Extract the JWT token from the Authorization header
+    public ResponseEntity<?> submitAssignmentWithFile(
+            @PathVariable String courseId,
+            @PathVariable String assignmentId,
+            @RequestParam("file") MultipartFile file, // استلام الملف المرفوع
+            HttpServletRequest request) {
+
+        // استخراج JWT Token
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return new ResponseEntity<>("Token is missing or invalid", HttpStatus.UNAUTHORIZED);
         }
 
-        String token = authHeader.substring(7);  // Remove "Bearer " prefix
-
-        // Extract username (user ID) from the token
+        String token = authHeader.substring(7);
         String userId = jwtService.extractUsername(token);
         if (userId == null) {
             return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
 
-        // Find the user by ID
+        // العثور على المستخدم
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
 
-        if (user.getRole().equals(UserRole.STUDENT)) {
-            Course course = courseService.getCourseById(courseId);  // هتجيب الكورس مباشرة بدون Optional
-            List<User> courseStudents = course.getStudents();
-            boolean isUserEnrolled = courseStudents.stream().anyMatch(student -> student.equals(user));
-
-            if (isUserEnrolled) {
-                Submission submission = new Submission();
-                submission.setFilePath(submissionDto.getFilePath());
-                submission.setSubmittedDate(LocalDateTime.now());
-                submission.setAssignmentId(assignmentId);
-                submission.setStudentId(userId); // حفظ الـ userId كـ String (UUID)
-
-                Submission createdSubmission = submissionService.submitAssignment(submission); // تقديم الواجب
-                return ResponseEntity.status(HttpStatus.CREATED).body(createdSubmission); // إرجاع الـ Submission مع حالة CREATED
-            } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not enrolled");
-            }
+        if (!user.getRole().equals(UserRole.STUDENT)) {
+            return new ResponseEntity<>("User role not supported", HttpStatus.FORBIDDEN);
         }
-        return new ResponseEntity<>("User role not supported", HttpStatus.FORBIDDEN);
+
+        Course course = courseService.getCourseById(courseId);
+        boolean isUserEnrolled = course.getStudents().stream().anyMatch(student -> student.equals(user));
+
+        if (!isUserEnrolled) {
+            return new ResponseEntity<>("User is not enrolled in this course", HttpStatus.FORBIDDEN);
+        }
+
+        try {
+            // حفظ التقديم
+            Submission submission = new Submission();
+            submission.setAssignmentId(assignmentId);
+            submission.setStudentId(userId);
+            submission.setSubmittedDate(LocalDateTime.now());
+
+            // استدعاء الخدمة لحفظ الملف
+            Submission createdSubmission = submissionService.submitAssignmentWithFile(submission, file);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdSubmission);
+        } catch (IOException e) {
+            return new ResponseEntity<>("File upload failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // 2. عرض جميع التقديمات لواجب معين
@@ -81,6 +91,33 @@ public class SubmissionController {
     public ResponseEntity<List<Submission>> getSubmissionsByAssignmentId(@PathVariable Long courseId, @PathVariable String assignmentId) {
         List<Submission> submissions = submissionService.getSubmissionsByAssignmentId(assignmentId); // جلب جميع التقديمات لواجب معين
         return ResponseEntity.ok(submissions); // إرجاع التقديمات
+    }
+
+    @GetMapping("/{submissionId}/view")
+    public ResponseEntity<?> viewSubmissionFile(@PathVariable Long submissionId) {
+        try {
+            // استدعاء الخدمة للحصول على محتوى الملف
+            byte[] fileContent = submissionService.getSubmissionFileContent(submissionId);
+            Submission submission = submissionService.getSubmissionById(submissionId);
+
+            // تحديد نوع الملف بناءً على الامتداد
+            String filePath = submission.getFilePath();
+            String contentType = Files.probeContentType(Paths.get(filePath));
+
+            if (contentType == null) {
+                contentType = "application/octet-stream"; // النوع الافتراضي
+            }
+
+            // إعداد الـ Response
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, contentType) // تعيين نوع الملف
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + Paths.get(filePath).getFileName().toString() + "\"")
+                    .body(fileContent);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Failed to load file: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // 3. إضافة ملاحظات على تقديم معين (لـ Instructor فقط)

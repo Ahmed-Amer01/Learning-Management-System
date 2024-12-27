@@ -13,6 +13,30 @@ public class SubmissionService {
     @Autowired
     private SubmissionRepository submissionRepository;
 
+    public Submission submitAssignmentWithFile(Submission submission, MultipartFile file) throws IOException {
+        // حفظ الملف في المسار المناسب
+        String filePath = saveFile(file);
+        submission.setFilePath(filePath);  // تعيين مسار الملف
+        return submissionRepository.save(submission);  // حفظ التقديم
+    }
+    private String saveFile(MultipartFile file) throws IOException {
+        String uploadDir = "uploads/"; // المسار الأساسي لحفظ الملفات
+        Path uploadPath = Paths.get(uploadDir);
+
+        // إنشاء المجلد إذا لم يكن موجودًا
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        String fileName = file.getOriginalFilename();
+        Path filePath = uploadPath.resolve(fileName);
+
+        // نسخ الملف إلى المسار المطلوب
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return filePath.toString();  // إرجاع المسار الكامل للملف
+    }
+
     public Submission submitAssignment(Submission submission) {
         return submissionRepository.save(submission);
     }
@@ -20,6 +44,25 @@ public class SubmissionService {
     public List<Submission> getSubmissionsByAssignmentId(String assignmentId) {
         return submissionRepository.findByAssignmentId(assignmentId);
     }
+
+    public byte[] getSubmissionFileContent(Long submissionId) throws IOException {
+        Submission submission = submissionRepository.findById(submissionId).orElseThrow(() ->
+                new RuntimeException("Submission not found with ID: " + submissionId));
+
+        Path filePath = Paths.get(submission.getFilePath());
+        if (!Files.exists(filePath)) {
+            throw new RuntimeException("File not found on server");
+        }
+
+        return Files.readAllBytes(filePath);
+    }
+
+    public Submission getSubmissionById(Long submissionId) {
+        return submissionRepository.findById(submissionId).orElseThrow(() ->
+                new RuntimeException("Submission not found with ID: " + submissionId));
+    }
+
+
     /*
     public Submission addFeedback(Long submissionId, String feedback) {
         Submission submission = submissionRepository.findById(submissionId).orElse(null);
@@ -35,19 +78,6 @@ public class SubmissionService {
                 new IllegalArgumentException("Submission not found with ID: " + submissionId));
         submission.setFeedback(feedback);
         return submissionRepository.save(submission);
-    }
-    public Submission submitAssignmentWithFile(Submission submission, MultipartFile file) throws IOException {
-        // حفظ الملف في المسار المناسب
-        String filePath = saveFile(file);
-        submission.setFilePath(filePath);  // تعيين مسار الملف
-        return submissionRepository.save(submission);  // حفظ التقديم
-    }
-
-    private String saveFile(MultipartFile file) throws IOException {
-        String fileName = file.getOriginalFilename();
-        Path path = Paths.get("uploads/" + fileName);
-        Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-        return path.toString();  // إرجاع المسار الكامل للملف
     }
     public Submission gradeAssignment(Long submissionId, Long grade) {
         // 1. العثور على التقديم
