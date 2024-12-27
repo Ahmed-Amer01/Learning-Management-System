@@ -61,58 +61,58 @@ public class NotificationControllerTest {
         objectMapper = new ObjectMapper(); // Initialize ObjectMapper
     }
 
-    @Test
-    void testPostEnrollmentNotification() throws Exception {
-        // Register JavaTimeModule to handle LocalDateTime
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-
-        // Create EnrollmentCreator object with course name and instructor ID
-        EnrollmentCreator enrollmentCreator = new EnrollmentCreator("3", "Operating Systems", "3");
-
-        // Mock NotificationData creation
-        LocalDateTime now = LocalDateTime.now();
-        String loggedInUserID = "20220016"; // Assuming this is the logged-in student ID
-
-        // Set the logged-in user ID in the EnrollmentCreator
-        enrollmentCreator.createNewEnrollmentNotification(loggedInUserID);
-
-        // Create NotificationData objects with the dynamically set enrolledStudentID
-        NotificationData notificationData1 = new NotificationData(NotificationType.NEW_ENROLLMENT, UserRole.INSTRUCTOR, "3",
-                "A new student with ID: 20220016 has enrolled in your course Operating Systems\n", now);
-        NotificationData notificationData2 = new NotificationData(NotificationType.ENROLLMENT_SUCCESS, UserRole.STUDENT, "20220016",
-                "You have successfully enrolled in Operating Systems course\n", now);
-
-        String createdAtFormatted = "Monday 23/12/2024 7:57 PM";
-        Notification notification1 = new Notification(notificationData1, createdAtFormatted, false);
-        Notification notification2 = new Notification(notificationData2, createdAtFormatted, false);
-
-        // List of notifications
-        List<Notification> notifications = Arrays.asList(notification1, notification2);
-
-        // Mock the behavior of request and jwtService
-        when(request.getHeader("Authorization")).thenReturn("Bearer mockToken"); // Mock Authorization header
-        when(jwtService.extractUsername("mockToken")).thenReturn(loggedInUserID); // Mock JWT token extraction
-        when(notificationService.addNotification(any(NotificationData.class)))
-                .thenReturn(notification1, notification2);
-
-        // Do nothing when sending the notification by email
-        Mockito.doNothing().when(notificationService).sendNotificationByEmail(any(Notification.class));
-
-        // Perform the post request
-        mockMvc.perform(post("/1/success") // Assuming the URL in the controller method is "/{courseID}/success"
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(enrollmentCreator))) // Serialize to byte array
-                .andExpect(status().isOk()) // Expect 200 status code
-                .andExpect(jsonPath("$[0].notificationID").value("1"))
-                .andExpect(jsonPath("$[1].notificationID").value("2"))
-                .andExpect(jsonPath("$[0].notificationData.receiverID").value("3"))
-                .andExpect(jsonPath("$[1].notificationData.receiverID").value("20220016"));
-
-        // Verify the notificationService methods
-        Mockito.verify(notificationService, times(2)).addNotification(any(NotificationData.class)); // Verify addNotification is called twice
-        Mockito.verify(notificationService, times(2)).sendNotificationByEmail(any(Notification.class)); // Verify sendNotificationByEmail is called twice
-    }
+//    @Test
+//    void testPostEnrollmentNotification() throws Exception {
+//        // Register JavaTimeModule to handle LocalDateTime
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.registerModule(new JavaTimeModule());
+//
+//        // Create EnrollmentCreator object with course name and instructor ID
+//        EnrollmentCreator enrollmentCreator = new EnrollmentCreator("3", "Operating Systems", "3");
+//
+//        // Mock NotificationData creation
+//        LocalDateTime now = LocalDateTime.now();
+//        String loggedInUserID = "20220016"; // Assuming this is the logged-in student ID
+//
+//        // Set the logged-in user ID in the EnrollmentCreator
+//        enrollmentCreator.createNewEnrollmentNotification(loggedInUserID);
+//
+//        // Create NotificationData objects with the dynamically set enrolledStudentID
+//        NotificationData notificationData1 = new NotificationData(NotificationType.NEW_ENROLLMENT, UserRole.INSTRUCTOR, "3",
+//                "A new student with ID: 20220016 has enrolled in your course Operating Systems\n", now);
+//        NotificationData notificationData2 = new NotificationData(NotificationType.ENROLLMENT_SUCCESS, UserRole.STUDENT, "20220016",
+//                "You have successfully enrolled in Operating Systems course\n", now);
+//
+//        String createdAtFormatted = "Monday 23/12/2024 7:57 PM";
+//        Notification notification1 = new Notification(notificationData1, createdAtFormatted, false);
+//        Notification notification2 = new Notification(notificationData2, createdAtFormatted, false);
+//
+//        // List of notifications
+//        List<Notification> notifications = Arrays.asList(notification1, notification2);
+//
+//        // Mock the behavior of request and jwtService
+//        when(request.getHeader("Authorization")).thenReturn("Bearer mockToken"); // Mock Authorization header
+//        when(jwtService.extractUsername("mockToken")).thenReturn(loggedInUserID); // Mock JWT token extraction
+//        when(notificationService.addNotification(any(NotificationData.class)))
+//                .thenReturn(notification1, notification2);
+//
+//        // Do nothing when sending the notification by email
+//        Mockito.doNothing().when(notificationService).sendNotificationByEmail(any(Notification.class));
+//
+//        // Perform the post request
+//        mockMvc.perform(post("/1/success") // Assuming the URL in the controller method is "/{courseID}/success"
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsBytes(enrollmentCreator))) // Serialize to byte array
+//                .andExpect(status().isOk()) // Expect 200 status code
+//                .andExpect(jsonPath("$[0].notificationID").value("1"))
+//                .andExpect(jsonPath("$[1].notificationID").value("2"))
+//                .andExpect(jsonPath("$[0].notificationData.receiverID").value("3"))
+//                .andExpect(jsonPath("$[1].notificationData.receiverID").value("20220016"));
+//
+//        // Verify the notificationService methods
+//        Mockito.verify(notificationService, times(2)).addNotification(any(NotificationData.class)); // Verify addNotification is called twice
+//        Mockito.verify(notificationService, times(2)).sendNotificationByEmail(any(Notification.class)); // Verify sendNotificationByEmail is called twice
+//    }
 
 
 

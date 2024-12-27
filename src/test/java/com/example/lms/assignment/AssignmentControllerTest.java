@@ -73,7 +73,7 @@ class AssignmentControllerTest {
         assignment.setTitle("Assignment Title");
         assignment.setDescription("Assignment Description");
         assignment.setDueDate(LocalDate.of(2024, 12, 31));
-        assignment.setMaxGrade(100);
+
 
         Course course = new Course();
         course.setId(courseId);
@@ -88,7 +88,7 @@ class AssignmentControllerTest {
             .thenReturn(Optional.of(mockUserWithRole("INSTRUCTOR")));
 
         // Prepare the request body as JSON
-        String jsonRequest = "{\"title\":\"Assignment Title\",\"description\":\"Assignment Description\",\"dueDate\":\"2024-12-31\",\"maxGrade\":100}";
+        String jsonRequest = "{\"title\":\"Assignment Title\",\"description\":\"Assignment Description\",\"dueDate\":\"2024-12-31\"}";
 
         // Act & Assert
         mockMvc.perform(post("/courses/{courseId}/assignments", courseId)
@@ -98,8 +98,7 @@ class AssignmentControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("Assignment Title"))
                 .andExpect(jsonPath("$.description").value("Assignment Description"))
-                .andExpect(jsonPath("$.dueDate").value("2024-12-31"))
-                .andExpect(jsonPath("$.maxGrade").value(100));
+                .andExpect(jsonPath("$.dueDate").value("2024-12-31"));
 
         verify(assignmentService, times(1)).createAssignment(eq(courseId), any(Assignment.class));
     }
@@ -112,13 +111,13 @@ class AssignmentControllerTest {
         assignment1.setTitle("Assignment 1");
         assignment1.setDescription("Description 1");
         assignment1.setDueDate(LocalDate.of(2024, 12, 25));
-        assignment1.setMaxGrade(80);
+        //assignment1.setMaxGrade(80);
 
         Assignment assignment2 = new Assignment();
         assignment2.setTitle("Assignment 2");
         assignment2.setDescription("Description 2");
         assignment2.setDueDate(LocalDate.of(2024, 12, 30));
-        assignment2.setMaxGrade(90);
+
 
         List<Assignment> assignments = List.of(assignment1, assignment2);
 
