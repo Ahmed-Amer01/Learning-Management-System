@@ -18,7 +18,7 @@ public class Assignment {
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
-    private int maxGrade;
+    
 
     // Many-to-One: Many lessons belong to a single course
     @JsonIgnore
@@ -59,13 +59,6 @@ public class Assignment {
         this.dueDate = dueDate;
     }
 
-    public int getMaxGrade() {
-        return maxGrade;
-    }
-
-    public void setMaxGrade(int maxGrade) {
-        this.maxGrade = maxGrade;
-    }
 
     public Course getCourse() {
         return course;
